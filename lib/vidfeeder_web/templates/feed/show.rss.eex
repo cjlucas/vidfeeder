@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<rss version='2.0' xmlns:itunes='http://www.itunes.com/dtds/podcast-1.0.dtd'>
+  <channel>
+    <title><%= @feed.title %></title>
+    <link>https://www.youtube.com/channel/UC_BzFbxG2za3bp5NRRRXJSw</link>
+    <description><%= @feed.description %></description>
+    <%= unless is_nil(@feed.image_url) do %>
+    <image><%= @feed.image_url %></image>
+    <itunes:image href='<%= @feed.image_url %>'></itunes:image>
+    <% end %>
+    <%= for item <- @feed.items do %>
+    <item>
+      <guid><%= item.id %></guid>
+      <pubDate><%= rss_pubdate(item.published_at) %></pubDate>
+      <title><%= item.title %></title>
+      <%= unless is_nil(item.image_url) do %>
+      <itunes:image href='<%= item.image_url %>'></itunes:image>
+      <% end %>
+      <itunes:duration><%= rss_duration(item.duration) %></itunes:duration>
+      <description><%= item.description %></description>
+      <itunes:summary><%= item.description %></itunes:summary>
+      <enclosure length='<%= item.size || 0 %>' type='<%= item.mime_type || "audio/mp3" %>' url='<%= rss_enclosure_url(item) %>'></enclosure>
+    </item>
+    <% end %>
+  </channel>
+</rss>

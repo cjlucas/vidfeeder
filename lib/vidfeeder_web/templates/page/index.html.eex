@@ -1,0 +1,5 @@
+Here are your feeds
+
+<%= for feed <- @feeds do %>
+  <a href="http://vidfeedertest1.cjlucas.net:5000/rss/<%= feed.id %>"><%= feed.id %></a>
+<% end %>
