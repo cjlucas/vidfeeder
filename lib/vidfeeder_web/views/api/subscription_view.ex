@@ -1,17 +1,18 @@
-defmodule VidFeederWeb.API.UserView do
+defmodule VidFeederWeb.API.SubscriptionView do
   use VidFeederWeb, :view
 
   @exposed_attributes [
     :id,
-    :email,
-    :access_token,
+    :title,
+    :feed_id,
+    :user_id,
     :inserted_at,
-    :updated_at
+    :updated_at,
   ]
 
-  def render("show.json", %{user: user}) do
-    user = Map.take(user, @exposed_attributes)
+  def render("show.json", %{subscription: subscription}) do
+    subscription = Map.take(subscription, @exposed_attributes)
 
-    %{user: user}
+    %{data: %{subscription: subscription}}
   end
 end

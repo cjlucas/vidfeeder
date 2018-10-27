@@ -2,7 +2,6 @@ defmodule VidFeederWeb.AuthorizeCurrentUser do
   import Phoenix.Controller
   import Plug.Conn
 
-
   def init(opts) do
     opts
   end
