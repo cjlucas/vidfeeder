@@ -56,3 +56,13 @@ config :vidfeeder, VidFeeder.Repo,
   database: "vidfeeder_dev",
   hostname: "localhost",
   pool_size: 10
+
+# Set up vault
+config :vidfeeder, VidFeeder.Vault,
+  ciphers: [
+    default: {
+      Cloak.Ciphers.AES.GCM,
+      tag: "AES.GCM.V1",
+      key: Base.decode64!("1itBFN717rmsr01DNNqZeliL0V8LGL2opsOAR7nysnU=")
+    }
+  ]

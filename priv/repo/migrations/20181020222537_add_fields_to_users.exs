@@ -3,10 +3,8 @@ defmodule VidFeeder.Repo.Migrations.AddFieldsToUsers do
 
   def change do
     alter table(:users) do
-      add :password, :binary
-
-      add :access_token, :binary
-      add :access_token_hash, :binary
+      add :password_hash, :binary, null: false
+      add :access_token, :binary, null: false
     end
   end
 end

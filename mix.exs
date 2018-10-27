@@ -43,7 +43,10 @@ defmodule VidFeeder.Mixfile do
       {:plug_cowboy, "~> 1.0"},
       {:google_api_you_tube, "~> 0.1.0"},
       {:goth, "~> 0.6.0"},
-      {:timex, "~> 3.4"}
+      {:timex, "~> 3.4"},
+      {:comeonin, "~> 4.0"},
+      {:argon2_elixir, "~> 1.2"},
+      {:bodyguard, "~> 2.2"}
     ]
   end
 
