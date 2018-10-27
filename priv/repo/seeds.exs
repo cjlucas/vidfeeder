@@ -18,9 +18,15 @@ alias VidFeeder.{
   FeedProcessor
 }
 
-user = Repo.insert!(%User{
-  email: "chris@cjl.io"
-})
+user = 
+  %User{}
+  |> User.create_changeset(%{
+    email: "chris@cjl.io",
+    password: "password",
+    password_confirmation: "password"
+  })
+  |> Repo.insert!
+
 
 feed1 = Repo.insert!(%Feed{
   source: "youtube",

@@ -19,7 +19,7 @@ defmodule VidFeederWeb.API.SubscriptionController do
       ImportFeedWorker.import_feed(feed)
     end
 
-    user = Repo.one(User)
+    user = Map.get(params, "current_user")
     subscription =
       %Subscription{feed_id: feed.id, user_id: user.id} 
       |> Subscription.changeset(params)

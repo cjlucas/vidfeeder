@@ -13,6 +13,6 @@ defmodule VidFeederWeb.API.SubscriptionView do
   def render("show.json", %{subscription: subscription}) do
     subscription = Map.take(subscription, @exposed_attributes)
 
-    %{subscription: subscription}
+    %{data: %{subscription: subscription}}
   end
 end
