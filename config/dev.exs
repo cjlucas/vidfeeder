@@ -54,3 +54,8 @@ config :vidfeeder, VidFeeder.Repo,
   database: "vidfeeder_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :cors_plug,
+  origin: ["*"],
+  max_age: 86400,
+  methods: ["GET", "POST", "DELETE"]

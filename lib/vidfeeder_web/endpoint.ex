@@ -37,6 +37,7 @@ defmodule VidFeederWeb.Endpoint do
     key: "_vidfeeder_key",
     signing_salt: "AvbuhS4w"
 
+  plug CORSPlug
   plug VidFeederWeb.Router
 
   @doc """
