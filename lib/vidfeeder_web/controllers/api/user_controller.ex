@@ -2,7 +2,7 @@ defmodule VidFeederWeb.API.UserController do
   use VidFeederWeb, :controller
 
   plug VidFeederWeb.LoadUser when action in [:show]
-  plug VidFeederWeb.AuthorizeCurrentUser, resource: "user"
+  plug VidFeederWeb.AuthorizeCurrentUser, [resource: "user"] when action in [:show]
 
   alias VidFeeder.{
     Repo,
