@@ -1,5 +1,5 @@
 defmodule YouTube.User do
-  defstruct [:username, :image_url]
+  defstruct [:username, :description, :image_url]
 
   alias GoogleApi.YouTube.V3.Api
   alias YouTube.Channel
@@ -16,6 +16,7 @@ defmodule YouTube.User do
 
     %__MODULE__{
       username: user_name,
+      description: channel_info.description,
       image_url: channel_info.image_url
     }
   end

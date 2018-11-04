@@ -32,7 +32,7 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
         feed
         |> Feed.changeset(%{
           title: feed.source_id,
-          description: "Uploads for #{feed.source_id}",
+          description: user_info.description,
           image_url: user_info.image_url
         })
         |> Repo.update!
