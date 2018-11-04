@@ -39,7 +39,7 @@ defmodule VidFeederWeb.API.FeedController do
           |> put_location_header(feed)
           |> send_resp(:see_other, "")
         else
-          reraise e
+          raise e
         end
     end
   end
