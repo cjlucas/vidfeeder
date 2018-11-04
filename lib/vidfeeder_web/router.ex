@@ -30,6 +30,9 @@ defmodule VidFeederWeb.Router do
     get "/users/:id", UserController, :show
 
     get "/users/:id/subscriptions", UserSubscriptionsController, :index
+
+    post "/feeds", FeedController, :create
+    get "/feeds/:id", FeedController, :show
   end
 
   get "/rss/:id", VidFeederWeb.FeedController, :rss

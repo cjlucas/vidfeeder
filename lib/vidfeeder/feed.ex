@@ -27,6 +27,11 @@ defmodule VidFeeder.Feed do
     timestamps()
   end
 
+  def create_changeset(feed, params \\ %{}) do
+    feed
+    |> cast(params, @required_fields)
+  end
+
   def changeset(feed, params \\ %{}) do
     feed
     |> cast(params, @permitted_params)
