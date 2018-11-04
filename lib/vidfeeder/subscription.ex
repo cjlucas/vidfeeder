@@ -3,6 +3,8 @@ defmodule VidFeeder.Subscription do
 
   import Ecto.Changeset
 
+  @required_fields [:feed_id, :user_id]
+
   schema "subscriptions" do
     field :title, :string
 
@@ -14,6 +16,7 @@ defmodule VidFeeder.Subscription do
 
   def changeset(subscription, params \\ %{}) do
     subscription
-    |> cast(params, [:title])
+    |> cast(params, [:title] ++ @required_fields)
+    |> validate_required(@required_fields)
   end
 end
