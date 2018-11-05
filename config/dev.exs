@@ -58,4 +58,5 @@ config :vidfeeder, VidFeeder.Repo,
 config :cors_plug,
   origin: ["*"],
   max_age: 86400,
-  methods: ["GET", "POST", "DELETE"]
+  methods: ["GET", "POST", "DELETE"],
+  expose: ["Location"]
