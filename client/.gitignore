@@ -1,3 +1,5 @@
 /elm-stuff
 index.html
 .tern-port
+dist
+node_modules
