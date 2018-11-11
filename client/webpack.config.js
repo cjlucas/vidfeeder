@@ -32,10 +32,19 @@ module.exports = {
         use: 'file-loader'
       },
       {
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          { loader: 'sass-loader', options: { importLoaders: 1 } },
+          'postcss-loader'
+        ]
+      },
+      {
         test: /\.css$/,
         use: [
           'style-loader',
-          { loader: 'css-loader', options: { importLoaders: 1 } },
+          'css-loader',
           'postcss-loader'
         ]
       },

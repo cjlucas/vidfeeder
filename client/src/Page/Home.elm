@@ -2,7 +2,7 @@ module Page.Home exposing (init, view, update, Msg, Model)
 
 import Api
 import Browser
-import Html exposing (a, button, div, form, h1, h2, h3, h4, i, img, input, span, text)
+import Html exposing (a, button, div, form, h1, h2, h3, h4, i, img, input, p, span, text)
 import Html.Attributes
     exposing
         ( attribute
@@ -22,8 +22,6 @@ import Html.Attributes
 import Html.Events exposing (onInput, onSubmit)
 import Http
 import Source exposing (Source, SourceName(..), SourceType)
-import Svg exposing (defs, g, metadata, svg)
-import Svg.Attributes exposing (d, fill, transform, version, viewBox)
 import Task
 import Url
 
@@ -291,10 +289,21 @@ view model =
                     text ""
 
                 Waiting ->
-                    text "We haven't seen this feed before! Please be patient while we generate it behind the scenes."
+                    div [ class "text-center" ]
+                        [ p [ class "font-bold text-2xl" ] [ text "We're working on it!" ]
+                        , div [ class "sk-double-bounce" ]
+                            [ div [ class "sk-child sk-double-bounce1" ] []
+                            , div [ class "sk-child sk-double-bounce2" ] []
+                            ]
+                        , p [] [ text "Please be patient while we generate your feed." ]
+                        ]
 
                 Error ->
-                    text "Ut oh! Looks like this feed is taking longer to generate than we expected, please try again."
+                    div [ class "text-center" ]
+                        [ p [ class "font-bold text-2xl" ] [ text "Ut oh!" ]
+                        , i [ class "fa fa-5x fa-exclamation-circle my-4 text-red" ] []
+                        , p [] [ text "This feed is taking longer to generate than expected, please try again." ]
+                        ]
 
                 Created feed ->
                     feedPreview feed
