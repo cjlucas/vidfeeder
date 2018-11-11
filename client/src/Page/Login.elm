@@ -3,7 +3,7 @@ module Page.Login exposing (init, update, view, Msg, OutMsg(..), Model)
 import Api
 import Browser
 import Html exposing (a, button, div, form, input, label, text)
-import Html.Attributes exposing (href, for, type_, value)
+import Html.Attributes exposing (class, href, for, type_, value)
 import Html.Events exposing (onInput, onSubmit)
 import Http
 

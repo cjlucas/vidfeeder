@@ -60,14 +60,16 @@ type alias Feed =
     { id : String
     , title : Maybe String
     , description : Maybe String
+    , imageUrl : Maybe String
     }
 
 
 feedDecoder =
-    Decode.map3 Feed
+    Decode.map4 Feed
         (at [ "feed", "id" ] string)
         (at [ "feed", "title" ] (nullable string))
         (at [ "feed", "description" ] (nullable string))
+        (at [ "feed", "image_url" ] (nullable string))
 
 
 baseUri =
@@ -207,8 +209,8 @@ type CreateFeedResponse
     | FeedExists Feed
 
 
-createOrGetFeedTask : Session -> CreateFeedParams -> Task Http.Error Feed
-createOrGetFeedTask session params =
+createOrGetFeedTask : CreateFeedParams -> Task Http.Error Feed
+createOrGetFeedTask params =
     let
         body =
             Encode.object
@@ -253,9 +255,7 @@ createOrGetFeedTask session params =
         createFeedTask =
             Http.request
                 { method = "POST"
-                , headers =
-                    [ Http.header "Authorization" ("Bearer " ++ session.accessToken)
-                    ]
+                , headers = []
                 , url = baseUri ++ "/api/feeds"
                 , body = Http.jsonBody body
                 , expect = Http.expectStringResponse handleResponse

@@ -2,11 +2,28 @@ module Page.Home exposing (init, view, update, Msg, Model)
 
 import Api
 import Browser
-import Html exposing (button, div, form, h4, input, text)
-import Html.Attributes exposing (type_, value)
+import Html exposing (a, button, div, form, h1, h2, h3, h4, i, img, input, span, text)
+import Html.Attributes
+    exposing
+        ( attribute
+        , class
+        , disabled
+        , height
+        , href
+        , id
+        , placeholder
+        , src
+        , style
+        , target
+        , type_
+        , value
+        , width
+        )
 import Html.Events exposing (onInput, onSubmit)
 import Http
 import Source exposing (Source, SourceName(..), SourceType)
+import Svg exposing (defs, g, metadata, svg)
+import Svg.Attributes exposing (d, fill, transform, version, viewBox)
 import Task
 import Url
 
@@ -19,7 +36,7 @@ type FeedCreationState
 
 
 type alias Model =
-    { session : Api.Session
+    { session : Maybe Api.Session
     , subscriptions : List Api.Subscription
     , urlInput : String
     , feedCreationState : FeedCreationState
@@ -30,19 +47,24 @@ type alias Model =
 -- Init
 
 
-init : Api.Session -> ( Model, Cmd Msg )
-init session =
+init : Maybe Api.Session -> ( Model, Cmd Msg )
+init maybeSession =
     let
         model =
-            { session = session
+            { session = maybeSession
             , subscriptions = []
             , urlInput = ""
             , feedCreationState = None
             }
 
         cmd =
-            Api.getCurrentSubscriptionsRequest session
-                |> Http.send SubscriptionsLoaded
+            case maybeSession of
+                Just session ->
+                    Api.getCurrentSubscriptionsRequest session
+                        |> Http.send SubscriptionsLoaded
+
+                Nothing ->
+                    Cmd.none
     in
         ( model, cmd )
 
@@ -51,7 +73,7 @@ init session =
 -- Update
 
 
-createFeedTask session source =
+createFeedTask source =
     let
         name =
             case source.sourceName of
@@ -69,7 +91,7 @@ createFeedTask session source =
                 Source.Playlist ->
                     "playlist"
     in
-        Api.createOrGetFeedTask session
+        Api.createOrGetFeedTask
             { name = name
             , type_ = type_
             , id = source.sourceId
@@ -111,7 +133,7 @@ update msg model =
                 cmd =
                     case sourceFromUrlInput model.urlInput of
                         Just source ->
-                            createFeedTask model.session source
+                            createFeedTask source
                                 |> Task.attempt FeedCreated
 
                         Nothing ->
@@ -139,8 +161,13 @@ update msg model =
                             Cmd.none
 
                         Created feed ->
-                            Api.createSubscriptionRequest model.session feed.id
-                                |> Http.send SubscriptionCreated
+                            case model.session of
+                                Just session ->
+                                    Api.createSubscriptionRequest session feed.id
+                                        |> Http.send SubscriptionCreated
+
+                                Nothing ->
+                                    Cmd.none
             in
                 ( model, cmd )
 
@@ -159,24 +186,98 @@ update msg model =
 -- View
 
 
+classes list =
+    class (String.join " " list)
+
+
+inputUrlValid inputUrl =
+    let
+        url =
+            String.trim inputUrl
+    in
+        sourceFromUrlInput url /= Nothing
+
+
+feedUrlForm inputText =
+    let
+        inputBorder =
+            if inputUrlValid inputText || (String.length << String.trim) inputText == 0 then
+                "border-grey-light"
+            else
+                "border-red"
+
+        buttonDisabledClasses =
+            if inputUrlValid inputText then
+                [ "hover:bg-blue-dark" ]
+            else
+                [ "opacity-50", "cursor-not-allowed" ]
+
+        buttonClasses =
+            [ "border-4"
+            , "px-2"
+            , "py-1"
+            , "border-transparent"
+            , "text-white"
+            , "font-bold"
+            , "bg-blue"
+            , "rounded-lg"
+            ]
+                ++ buttonDisabledClasses
+    in
+        form
+            [ class ("flex items-center py-2 border-b border-b2 " ++ inputBorder)
+            , onSubmit CreateFeed
+            ]
+            [ input
+                [ class "pr-4 appearance-none bg-transparent border-none w-full text-grey focus:outline-none"
+                , value inputText
+                , type_ "text"
+                , placeholder "Feed URL"
+                , onInput UrlInputChanged
+                ]
+                []
+            , button
+                [ classes buttonClasses
+                , disabled (not (inputUrlValid inputText))
+                ]
+                [ text "Create" ]
+            ]
+
+
 feedPreview feed =
     let
         title =
             Maybe.withDefault "None" feed.title
 
         description =
-            Maybe.withDefault "None" feed.description
+            Maybe.withDefault "No description available." feed.description
+
+        image =
+            case feed.imageUrl of
+                Just url ->
+                    img [ class "h-32 w-32", src url ] []
+
+                Nothing ->
+                    text ""
     in
         div []
-            [ h4 [] [ text "ID" ]
-            , text feed.id
-            , h4 [] [ text "Title" ]
-            , text title
-            , h4 [] [ text "Description" ]
-            , text description
-            , form
-                [ onSubmit CreateSubscription ]
-                [ button [ type_ "submit" ] [ text "Subscribe" ]
+            [ div [ class "flex mb-4" ]
+                [ image
+                , div [ class "pl-6" ]
+                    [ h1 [ class "mb-2" ] [ text title ]
+                    , text description
+                    ]
+                ]
+            , div [ class "flex justify-between items-center pt-2 pb-2" ]
+                [ a
+                    [ class "block flex items-center no-underline text-grey-light hover:text-orange"
+                    , href ("http://localhost:5000/rss/" ++ feed.id)
+                    , target "_blank"
+                    ]
+                    [ i [ class "fa fa-2x fa-rss pr-2" ] []
+                    , span [ class "font-bold text-2xl" ] [ text "RSS" ]
+                    ]
+                , img [ class "h-8", src "http://oi63.tinypic.com/34njn82.jpg" ] []
                 ]
             ]
 
@@ -190,21 +291,25 @@ view model =
                     text ""
 
                 Waiting ->
-                    text "Feed is being created"
+                    text "We haven't seen this feed before! Please be patient while we generate it behind the scenes."
 
                 Error ->
-                    text "Failed to create feed"
+                    text "Ut oh! Looks like this feed is taking longer to generate than we expected, please try again."
 
                 Created feed ->
                     feedPreview feed
     in
         { title = "Home"
         , body =
-            [ div [] [ text "You're HOME!" ]
-            , form [ onSubmit CreateFeed ]
-                [ input [ type_ "text", value model.urlInput, onInput UrlInputChanged ] []
-                , button [ type_ "submit" ] [ text "Add URL" ]
+            [ div [ class "flex container mx-auto my-auto h-screen font-sans" ]
+                [ div [ class "mx-auto my-auto w-1/2" ]
+                    [ div [ class "rounded-xl shadow-lg px-6 pt-12 pb-4 bg-white" ]
+                        [ feedUrlForm model.urlInput
+                        , div [ class "mt-8" ]
+                            [ feedCreationStatusInfo
+                            ]
+                        ]
+                    ]
                 ]
-            , feedCreationStatusInfo
             ]
         }

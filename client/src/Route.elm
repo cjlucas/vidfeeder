@@ -1,6 +1,6 @@
 module Route exposing (Route(..), fromUrl)
 
-import Url.Parser exposing (s, oneOf, map, parse)
+import Url.Parser exposing (s, oneOf, map, parse, top)
 
 
 type Route
@@ -23,6 +23,7 @@ defragmentUrl url =
 
 parser =
     oneOf
-        [ map Login (s "login")
+        [ map Home top
+        , map Login (s "login")
         , map CreateUser (s "create")
         ]

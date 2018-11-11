@@ -194,6 +194,7 @@ module.exports = {
 
   fonts: {
     'sans': [
+      'Avenir Next',
       'system-ui',
       'BlinkMacSystemFont',
       '-apple-system',
@@ -443,6 +444,8 @@ module.exports = {
     'sm': '.125rem',
     default: '.25rem',
     'lg': '.5rem',
+    'xl': '1rem',
+    '2xl': '2rem',
     'full': '9999px',
   },
 
@@ -553,6 +556,7 @@ module.exports = {
 
   minWidth: {
     '0': '0',
+    '60vw': '60vw',
     'full': '100%',
   },
 

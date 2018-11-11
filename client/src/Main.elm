@@ -53,8 +53,12 @@ loadPage url =
         CreateUser ->
             CreateUserPage Page.CreateUser.init
 
-        _ ->
-            Debug.todo "Handle rest of pages"
+        Home ->
+            let
+                ( model, _ ) =
+                    Page.Home.init Nothing
+            in
+                HomePage model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -83,7 +87,7 @@ update msg model =
                         Page.CreateUser.SessionCreated session ->
                             let
                                 ( homePageModel, homePageCmd ) =
-                                    Page.Home.init session
+                                    Page.Home.init (Just session)
                             in
                                 ( { model | currentPage = HomePage homePageModel }, Cmd.map HomeMsg homePageCmd )
 
@@ -102,7 +106,7 @@ update msg model =
                         Page.Login.SessionCreated session ->
                             let
                                 ( homePageModel, homePageCmd ) =
-                                    Page.Home.init session
+                                    Page.Home.init (Just session)
                             in
                                 ( { model | currentPage = HomePage homePageModel }, Cmd.map HomeMsg homePageCmd )
 
