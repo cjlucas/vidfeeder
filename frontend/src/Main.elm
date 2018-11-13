@@ -66,13 +66,10 @@ update msg model =
     case ( Debug.log "msg" msg, model.currentPage ) of
         ( UrlRequested (Browser.Internal url), _ ) ->
             let
-                fragmentUrl =
-                    { url | fragment = Just url.path, path = "" }
-
                 cmd =
-                    Nav.pushUrl model.key (Url.toString fragmentUrl)
+                    Nav.pushUrl model.key (Url.toString url)
             in
-                ( { model | currentPage = loadPage fragmentUrl }, cmd )
+                ( { model | currentPage = loadPage url }, cmd )
 
         ( CreateUserMsg pageMsg, CreateUserPage pageModel ) ->
             let

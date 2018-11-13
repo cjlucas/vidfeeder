@@ -13,12 +13,6 @@ defmodule VidFeederWeb.Router do
     plug VidFeederWeb.LoadCurrentUser
   end
 
-  scope "/", VidFeederWeb do
-    pipe_through :browser # Use the default browser stack
-
-    get "/", PageController, :index
-  end
-
   scope "/api", VidFeederWeb.API do
     pipe_through :api
 
@@ -36,4 +30,11 @@ defmodule VidFeederWeb.Router do
   end
 
   get "/rss/:id", VidFeederWeb.FeedController, :rss
+  
+  scope "/", VidFeederWeb do
+    pipe_through :browser # Use the default browser stack
+
+    match :*, "/*path", PageController, :index
+  end
+
 end

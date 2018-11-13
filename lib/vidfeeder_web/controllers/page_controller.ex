@@ -2,8 +2,11 @@ defmodule VidFeederWeb.PageController do
   use VidFeederWeb, :controller
 
   def index(conn, _params) do
-    feeds = VidFeeder.Repo.all(VidFeeder.Feed)
+    data = File.read!("priv/static/index.html")
 
-    render conn, "index.html", feeds: feeds
+    conn
+    |> put_resp_content_type("text/html")
+    |> resp(:ok, data)
+    |> send_resp
   end
 end
