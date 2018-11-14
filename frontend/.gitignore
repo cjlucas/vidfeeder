@@ -1,0 +1,4 @@
+/elm-stuff
+.tern-port
+dist
+node_modules

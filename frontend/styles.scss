@@ -1,0 +1,9 @@
+@tailwind preflight;
+
+@tailwind components;
+
+@tailwind utilities;
+
+$spinkit-spinner-color: #b8c2cc;
+
+@import "node_modules/spinkit/scss/spinners/2-double-bounce.scss";

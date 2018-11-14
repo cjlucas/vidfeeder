@@ -9,6 +9,7 @@ defmodule VidFeederWeb.Endpoint do
   # when deploying your static files in production.
   plug Plug.Static,
     at: "/", from: :vidfeeder, gzip: false,
+    only_matching: ~w(main),
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
@@ -37,6 +38,7 @@ defmodule VidFeederWeb.Endpoint do
     key: "_vidfeeder_key",
     signing_salt: "AvbuhS4w"
 
+  plug CORSPlug
   plug VidFeederWeb.Router
 
   @doc """

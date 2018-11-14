@@ -15,7 +15,7 @@ defmodule VidFeeder.ImportFeedEnqueuer do
   ## Server
 
   def init(:ok) do
-    {:ok, tref} = :timer.send_interval(15 * 60 * 1000, :timer_fired)
+    {:ok, tref} = :timer.send_interval(60 * 60 * 1000, :timer_fired)
 
     {:ok, %{tref: tref}}
   end

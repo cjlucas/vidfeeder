@@ -22,7 +22,7 @@ defmodule VidFeederWeb.API.FeedController do
 
       conn
       |> put_location_header(feed)
-      |> send_resp(:accepted, "")
+      |> send_resp(:created, "")
     rescue
       e in Ecto.ConstraintError ->
         %{constraint: constraint} = e
