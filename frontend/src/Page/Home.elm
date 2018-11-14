@@ -227,7 +227,7 @@ feedUrlForm inputText =
             , onSubmit CreateFeed
             ]
             [ input
-                [ class "pr-4 appearance-none bg-transparent border-none w-full text-grey focus:outline-none"
+                [ class "pr-4 appearance-none bg-transparent border-none w-full text-grey-dark focus:outline-none"
                 , value inputText
                 , type_ "text"
                 , placeholder "Feed URL"
