@@ -47,7 +47,8 @@ defmodule VidFeeder.Mixfile do
       {:comeonin, "~> 4.0"},
       {:argon2_elixir, "~> 1.2"},
       {:bodyguard, "~> 2.2"},
-      {:cors_plug, "~> 1.5"}
+      {:cors_plug, "~> 1.5"},
+      {:distillery, "~> 2.0"}
     ]
   end
 
