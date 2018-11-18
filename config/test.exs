@@ -9,6 +9,9 @@ config :vidfeeder, VidFeederWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+config :goth,
+  disabled: true
+
 # Configure your database
 config :vidfeeder, VidFeeder.Repo,
   adapter: Ecto.Adapters.Postgres,
