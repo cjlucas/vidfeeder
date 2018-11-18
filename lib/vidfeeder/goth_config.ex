@@ -6,7 +6,8 @@ defmodule VidFeeder.GothConfig do
   end
 
   def decrypt_credentials! do
-    "config/creds/vidfeeder_service_account_credentials"
+    Application.app_dir(:vidfeeder, "priv/credentials")
+    |> Path.join("vidfeeder_service_account_credentials")
     |> File.read!
     |> Cipher.decrypt
   end

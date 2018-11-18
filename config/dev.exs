@@ -9,7 +9,7 @@ use Mix.Config
 config :vidfeeder, VidFeederWeb.Endpoint,
   http: [port: 5000],
   debug_errors: true,
-  code_reloader: true,
+  code_reloader: false,
   check_origin: false,
   server: true
 
