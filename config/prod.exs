@@ -16,7 +16,8 @@ use Mix.Config
 config :vidfeeder, VidFeederWeb.Endpoint,
   load_from_system_env: true,
   url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  server: true
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -59,6 +60,12 @@ config :logger, level: :info
 #     config :vidfeeder, VidFeederWeb.Endpoint, server: true
 #
 
-# Finally import the config/prod.secret.exs
-# which should be versioned separately.
-import_config "prod.secret.exs"
+config :vidfeeder, VidFeederWeb.Endpoint,
+  secret_key_base: "7W4JVOgv2/f5i9WiJlQc1FIoskCvTdeMeDIuHsqZEdsM8fySiis6DTMmoGly0x4m"
+
+# Configure your database
+config :vidfeeder, VidFeeder.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "vidfeeder",
+  password: "vidfeeder",
+  pool_size: 15
