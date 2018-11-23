@@ -47,7 +47,7 @@ end
 # will be used by default
 
 release :vidfeeder do
-  set version: current_version(:vidfeeder)
+  set version: System.get_env("BUILD_VERSION")
   set applications: [
     :runtime_tools,
     vidfeeder: :permanent
