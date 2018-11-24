@@ -18,7 +18,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /Api.elm/,
+        test: /.*elm$/,
         loader: 'string-replace-loader',
         options: {
           search: '{{API_BASE_URI}}',
