@@ -73,7 +73,7 @@ feedDecoder =
 
 
 baseUri =
-    "{{API_BASE_URI}}"
+    "/"
 
 
 createUserRequest : String -> String -> String -> Http.Request User
