@@ -269,7 +269,7 @@ feedPreview feed =
             , div [ class "flex justify-between items-center pt-2 pb-2" ]
                 [ a
                     [ class "block flex items-center no-underline text-grey-light hover:text-orange"
-                    , href ("http://localhost:5000/rss/" ++ feed.id)
+                    , href ("/rss/" ++ feed.id)
                     , target "_blank"
                     ]
                     [ i [ class "fa fa-2x fa-rss pr-2" ] []
