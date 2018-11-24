@@ -1,0 +1,42 @@
+- hosts: "{{ ansible_hosts }}"
+  tasks:
+    - name: Create user
+      user:
+        state: present
+        name: vidfeeder
+        shell: /bin/bash
+    - name: Create /home/vidfeeder/.ssh
+      file:
+        state: directory
+        path: /home/vidfeeder/.ssh
+    - name: Copy authorized_keys
+      shell: cp /root/.ssh/authorized_keys /home/vidfeeder/.ssh
+    - name: Change authorized_keys permissions
+      file:
+        state: file
+        path: /home/vidfeeder/.ssh/authorized_keys
+        owner: vidfeeder
+        group: vidfeeder
+        mode: 0600
+    - name: Copy sudoers
+      template:
+        src: templates/sudoers.j2
+        dest: /etc/sudoers
+        validate: '/usr/sbin/visudo -cf %s'
+    - name: Install packages
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+      vars:
+        packages:
+          - nginx
+          - python3-boto3
+    - name: Copy nginx.conf
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+    - name: Enable and restart nginx
+      systemd:
+        name: nginx
+        state: restarted # Never idempotent, always restarts
+        enabled: yes
