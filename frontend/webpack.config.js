@@ -2,9 +2,7 @@ const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const API_BASE_URI = process.env.NODE_ENV == 'production'
-  ? 'http://104.248.58.33'
-  : 'http://localhost:5000'
+const API_BASE_URI = process.env.API_BASE_URI || 'http://localhost:5000'
 
 module.exports = {
   entry: [
