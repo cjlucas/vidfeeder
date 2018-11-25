@@ -63,9 +63,6 @@ config :logger, level: :info
 config :vidfeeder, VidFeederWeb.Endpoint,
   secret_key_base: "7W4JVOgv2/f5i9WiJlQc1FIoskCvTdeMeDIuHsqZEdsM8fySiis6DTMmoGly0x4m"
 
-# Configure your database
-config :vidfeeder, VidFeeder.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: "vidfeeder",
-  password: "vidfeeder",
-  pool_size: 15
+# Finally import the config/prod.secret.exs
+# which should be versioned separately.
+import_config "prod.secret.exs"
