@@ -1,6 +1,8 @@
 defmodule VidFeederWeb.API.FeedController do
   use VidFeederWeb, :controller
 
+  import Ecto.Query
+
   @long_poll_timeout        10 * 1000
   @long_poll_retry_interval 500
   @long_poll_retry_count    div(@long_poll_timeout, @long_poll_retry_interval)
@@ -49,9 +51,9 @@ defmodule VidFeederWeb.API.FeedController do
       nil ->
         send_resp(conn, :not_found, "")
       feed ->
-        feed = wait_for_feed_metadata(feed)
+        feed = wait_for_feed_items(feed)
 
-        if feed_metadata_exists?(feed) do
+        if feed_items_exist?(feed) do
           render conn, "show.json", feed: feed
         else
           conn
@@ -61,20 +63,22 @@ defmodule VidFeederWeb.API.FeedController do
     end
   end
 
-  defp feed_metadata_exists?(feed) do
-    feed.title != nil
+  defp feed_items_exist?(feed) do
+    Repo.one(from fi in "feeds_items",
+             select: count(fi.item_id),
+             where: fi.feed_id == type(^feed.id, Ecto.UUID)) > 0
   end
 
-  defp wait_for_feed_metadata(feed), do: wait_for_feed_metadata(feed, @long_poll_retry_count)
-  defp wait_for_feed_metadata(feed, 0), do: feed
-  defp wait_for_feed_metadata(feed, n) do
-    if feed_metadata_exists?(feed) do
+  defp wait_for_feed_items(feed), do: wait_for_feed_items(feed, @long_poll_retry_count)
+  defp wait_for_feed_items(feed, 0), do: feed
+  defp wait_for_feed_items(feed, n) do
+    if feed_items_exist?(feed) do
       feed
     else
       Process.sleep(@long_poll_retry_interval)
 
       feed = Repo.get(Feed, feed.id)
-      wait_for_feed_metadata(feed, n - 1)
+      wait_for_feed_items(feed, n - 1)
     end
   end
 

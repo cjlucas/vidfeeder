@@ -100,7 +100,7 @@ type Msg
     = SubscriptionsLoaded (Result Http.Error (List Api.Subscription))
     | UrlInputChanged String
     | CreateFeed
-    | FeedCreated (Result Http.Error Api.Feed)
+    | FeedCreated (Result Http.Error (Maybe Api.Feed))
     | CreateSubscription
     | SubscriptionCreated (Result Http.Error Api.Subscription)
 
@@ -139,8 +139,11 @@ update msg model =
             in
                 ( { model | urlInput = "", feedCreationState = Waiting }, cmd )
 
-        FeedCreated (Ok feed) ->
+        FeedCreated (Ok (Just feed)) ->
             ( { model | feedCreationState = Created feed }, Cmd.none )
+
+        FeedCreated (Ok Nothing) ->
+            ( { model | feedCreationState = Error }, Cmd.none )
 
         FeedCreated (Err error) ->
             ( { model | feedCreationState = Error }, Cmd.none )

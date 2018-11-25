@@ -156,43 +156,7 @@ createSubscriptionRequest session feedId =
             }
 
 
-type alias CreateFeedParams =
-    { name : String
-    , type_ : String
-    , id : String
-    }
-
-
-createFeedRequest : Session -> CreateFeedParams -> Http.Request Feed
-createFeedRequest session params =
-    let
-        url =
-            baseUri ++ "/api/feeds"
-
-        body =
-            Encode.object
-                [ ( "source", Encode.string params.name )
-                , ( "source_type", Encode.string params.type_ )
-                , ( "source_id", Encode.string params.id )
-                ]
-
-        decoder =
-            (field "data" feedDecoder)
-    in
-        Http.request
-            { method = "POST"
-            , headers =
-                [ Http.header "Authorization" ("Bearer " ++ session.accessToken)
-                ]
-            , url = url
-            , body = Http.jsonBody body
-            , expect = Http.expectJson decoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
-
-
-getFeedRequest : String -> Http.Request Feed
+getFeedRequest : String -> Http.Request (Maybe Feed)
 getFeedRequest id =
     let
         url =
@@ -200,8 +164,32 @@ getFeedRequest id =
 
         decoder =
             (field "data" feedDecoder)
+
+        handleResponse response =
+            case response.status.code of
+                200 ->
+                    case decodeString decoder response.body of
+                        Ok feed ->
+                            Ok (Just feed)
+
+                        Err _ ->
+                            Err "failed to decode body"
+
+                202 ->
+                    Ok Nothing
+
+                code ->
+                    Err ("unkown code: " ++ (String.fromInt code))
     in
-        Http.get url decoder
+        Http.request
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectStringResponse handleResponse
+            , timeout = Nothing
+            , withCredentials = False
+            }
 
 
 type CreateFeedResponse
@@ -209,7 +197,14 @@ type CreateFeedResponse
     | FeedExists Feed
 
 
-createOrGetFeedTask : CreateFeedParams -> Task Http.Error Feed
+type alias CreateFeedParams =
+    { name : String
+    , type_ : String
+    , id : String
+    }
+
+
+createOrGetFeedTask : CreateFeedParams -> Task Http.Error (Maybe Feed)
 createOrGetFeedTask params =
     let
         body =
@@ -272,5 +267,5 @@ createOrGetFeedTask params =
                             getFeedRequest id |> Http.toTask
 
                         FeedExists feed ->
-                            Task.succeed feed
+                            Task.succeed (Just feed)
                 )
