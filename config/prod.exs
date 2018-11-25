@@ -62,7 +62,3 @@ config :logger, level: :info
 
 config :vidfeeder, VidFeederWeb.Endpoint,
   secret_key_base: "7W4JVOgv2/f5i9WiJlQc1FIoskCvTdeMeDIuHsqZEdsM8fySiis6DTMmoGly0x4m"
-
-# Finally import the config/prod.secret.exs
-# which should be versioned separately.
-import_config "prod.secret.exs"
