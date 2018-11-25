@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :vidfeeder, VidFeederWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "104.248.58.33", port: 80],
+  url: [host: "teamcity2.cjlucas.net", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json",
   server: true
 
