@@ -1,0 +1,39 @@
+- hosts: "{{ ansible_hosts }}"
+  tasks:
+    - name: Create directories
+      file:
+        state: directory
+        path: "{{ item }}"
+      loop:
+          - /home/vidfeeder/vidfeeder
+    - name: Download package
+      aws_s3:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        bucket: net.cjlucas.vidfeeder.builds
+        mode: get
+        object: "{{ package_s3_object }}"
+        dest: "/home/vidfeeder/{{ package_s3_object }}"
+    - name: Unarchive package
+      unarchive:
+        src: "/home/vidfeeder/{{ package_s3_object }}"
+        dest: /home/vidfeeder/vidfeeder
+        remote_src: yes
+    - name: Write vm.args
+      template:
+        src: templates/vm.args.j2
+        dest: /home/vidfeeder/vidfeeder/vm.args
+      vars:
+        ip_address: "{{ do_networks['v4'] | selectattr('type', 'eq', 'private') | map(attribute='ip_address') | first }}"
+        cookie: "{{ vidfeeder_cookie }}"
+    - name: Copy vidfeeder.service
+      template:
+        src: templates/vidfeeder.service.j2
+        dest: /etc/systemd/system/vidfeeder.service
+      become: yes
+    - name: Stop VidFeeder
+      systemd:
+        name: vidfeeder
+        state: stopped
+        daemon_reload: yes
+      become: yes

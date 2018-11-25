@@ -9,11 +9,14 @@ config :vidfeeder, VidFeederWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+config :goth,
+  disabled: true
+
 # Configure your database
 config :vidfeeder, VidFeeder.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
   database: "vidfeeder_test",
-  hostname: "localhost",
+  hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool: Ecto.Adapters.SQL.Sandbox

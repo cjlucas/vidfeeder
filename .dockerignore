@@ -23,5 +23,5 @@ erl_crash.dump
 # variables.
 /config/*.secret.exs
 
-# Ansible
-*.retry
+/frontend/elm-stuff
+/frontend/node_modules

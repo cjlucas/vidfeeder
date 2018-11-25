@@ -15,8 +15,9 @@ use Mix.Config
 # which you typically run after static files are built.
 config :vidfeeder, VidFeederWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  url: [host: "vidfeeder2.cjlucas.net", port: 80],
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  server: true
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -59,6 +60,5 @@ config :logger, level: :info
 #     config :vidfeeder, VidFeederWeb.Endpoint, server: true
 #
 
-# Finally import the config/prod.secret.exs
-# which should be versioned separately.
-import_config "prod.secret.exs"
+config :vidfeeder, VidFeederWeb.Endpoint,
+  secret_key_base: "7W4JVOgv2/f5i9WiJlQc1FIoskCvTdeMeDIuHsqZEdsM8fySiis6DTMmoGly0x4m"

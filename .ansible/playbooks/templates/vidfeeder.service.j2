@@ -1,0 +1,24 @@
+[Unit]
+Description=VidFeeder
+After=local-fs.target network.target
+
+[Service]
+Type=simple
+User=vidfeeder
+Group=vidfeeder
+WorkingDirectory=/home/vidfeeder
+ExecStart=/home/vidfeeder/vidfeeder/bin/vidfeeder foreground
+ExecStop=/home/vidfeeder/vidfeeder/bin/vidfeeder stop
+Environment=LANG=en_US.UTF-8
+Environment=MIX_ENV=prod
+Environment=REPLACE_OS_VARS=true
+Environment=PORT=55555
+Environment=DATABASE_URL={{ database_url }}
+LimitNOFILE=65536
+UMask=0027
+SyslogIdentifier=vidfeeder
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

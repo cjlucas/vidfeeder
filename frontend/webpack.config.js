@@ -2,6 +2,8 @@ const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const API_BASE_URI = process.env.API_BASE_URI || 'http://localhost:5000'
+
 module.exports = {
   entry: [
     'font-awesome/css/font-awesome.css',
@@ -13,6 +15,15 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /.*elm$/,
+        loader: 'string-replace-loader',
+        options: {
+          search: '{{API_BASE_URI}}',
+          replace: API_BASE_URI,
+          strict: true
+        }
+      },
       {
         test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
