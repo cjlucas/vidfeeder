@@ -2,7 +2,7 @@ module Source exposing (Source, SourceName(..), SourceType(..), fromUrl, between
 
 import Parser exposing (Parser, (|.), (|=), map, succeed)
 import Url exposing (Url)
-import Url.Parser exposing (query)
+import Url.Parser exposing (query, s, (<?>))
 import Url.Parser.Query as Query
 
 
@@ -50,23 +50,19 @@ parseUrlPath parser url =
     Parser.run parser url.path |> Result.toMaybe
 
 
+parseYouTubePlaylist path url =
+    Url.Parser.parse (s path <?> Query.string "list") url
+        |> Maybe.andThen identity
+        |> Maybe.map (Source YouTube Playlist)
+
+
 fromUrl : Url -> Maybe Source
 fromUrl url =
     oneOf
         [ parseUrlPath (map (Source YouTube Channel) (between "/channel/" "/"))
         , parseUrlPath (map (Source YouTube User) (between "/user/" "/"))
-        , \url_ ->
-            case Url.Parser.parse (query (Query.string "list")) url_ of
-                Just match ->
-                    case match of
-                        Just playlistId ->
-                            Just (Source YouTube Playlist playlistId)
-
-                        Nothing ->
-                            Nothing
-
-                Nothing ->
-                    Nothing
+        , parseYouTubePlaylist "watch"
+        , parseYouTubePlaylist "playlist"
         ]
         url
 
