@@ -93,6 +93,18 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
         end
       end)
 
+    changeset =
+      feed
+      |> Repo.preload(:items)
+      |> Ecto.Changeset.change
+      |> Ecto.Changeset.put_change(:last_refreshed_at, DateTime.utc_now)
+      |> Ecto.Changeset.put_change(:state, "imported")
+      |> Ecto.Changeset.put_assoc(:items, feed_items)
+
+    IO.puts("UPDATING feed: #{feed.id}")
+
+    Repo.update!(changeset)
+
     IO.puts "FETCHING METADATA"
 
     feed_items_without_metadata = Enum.filter(feed_items, fn item -> is_nil(item.size) end)
@@ -112,18 +124,6 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
       end)
     end)
     |> Enum.each(&Task.await(&1, :infinity))
-
-    changeset =
-      feed
-      |> Repo.preload(:items)
-      |> Ecto.Changeset.change
-      |> Ecto.Changeset.put_change(:last_refreshed_at, DateTime.utc_now)
-      |> Ecto.Changeset.put_change(:state, "imported")
-      |> Ecto.Changeset.put_assoc(:items, feed_items)
-
-    IO.puts("UPDATING feed: #{feed.id}")
-
-    Repo.update!(changeset)
   end
   
   def fetch_item_metadata(item) do
