@@ -107,23 +107,23 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
 
     IO.puts "FETCHING METADATA"
 
-    feed_items_without_metadata = Enum.filter(feed_items, fn item -> is_nil(item.size) end)
+    #feed_items_without_metadata = Enum.filter(feed_items, fn item -> is_nil(item.size) end)
 
-    chunk_by =
-      if Enum.count(feed_items_without_metadata) > 100 do
-        div(Enum.count(feed_items_without_metadata), 100)
-      else
-        1
-      end
+    #chunk_by =
+      #if Enum.count(feed_items_without_metadata) > 100 do
+        #div(Enum.count(feed_items_without_metadata), 100)
+      #else
+        #1
+      #end
 
-    feed_items_without_metadata
-    |> Enum.chunk_every(chunk_by)
-    |> Enum.map(fn chunk ->
-      Task.async(fn ->
-        Enum.each(chunk, fn item -> fetch_item_metadata(item) end)
-      end)
-    end)
-    |> Enum.each(&Task.await(&1, :infinity))
+    #feed_items_without_metadata
+    #|> Enum.chunk_every(chunk_by)
+    #|> Enum.map(fn chunk ->
+      #Task.async(fn ->
+        #Enum.each(chunk, fn item -> fetch_item_metadata(item) end)
+      #end)
+    #end)
+    #|> Enum.each(&Task.await(&1, :infinity))
   end
   
   def fetch_item_metadata(item) do
