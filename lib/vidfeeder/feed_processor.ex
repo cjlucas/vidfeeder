@@ -67,12 +67,11 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
         Map.put(acc, item.source_id, item)
       end)
 
-    feed_items =
-      items
-      |> Enum.map(fn item ->
+    {new_items, existing_items} =
+      Enum.reduce(items, {[], []}, fn item, {new_items, existing_items} ->
         case Map.get(existing_items_by_source_id, item.id) do
           nil ->
-            Repo.insert!(%Item{
+            item = Repo.insert!(%Item{
               title: item.title,
               description: item.description,
               source_id: item.id,
@@ -80,16 +79,21 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
               image_url: item.image_url,
               published_at: item.published_at
             })
+
+            {[item | new_items], existing_items}
           existing_item ->
-            existing_item
-            |> Ecto.Changeset.change(%{
-              title: item.title,
-              description: item.description,
-              duration: item.duration,
-              image_url: item.image_url,
-              published_at: item.published_at
-            })
-            |> Repo.update!
+            item =
+              existing_item
+              |> Ecto.Changeset.change(%{
+                title: item.title,
+                description: item.description,
+                duration: item.duration,
+                image_url: item.image_url,
+                published_at: item.published_at
+              })
+              |> Repo.update!
+
+            {new_items, [item | existing_items]}
         end
       end)
 
@@ -99,7 +103,7 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
       |> Ecto.Changeset.change
       |> Ecto.Changeset.put_change(:last_refreshed_at, DateTime.utc_now)
       |> Ecto.Changeset.put_change(:state, "imported")
-      |> Ecto.Changeset.put_assoc(:items, feed_items)
+      |> Ecto.Changeset.put_assoc(:items, new_items ++ existing_items)
 
     IO.puts("UPDATING feed: #{feed.id}")
 
@@ -107,23 +111,21 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
 
     IO.puts "FETCHING METADATA"
 
-    #feed_items_without_metadata = Enum.filter(feed_items, fn item -> is_nil(item.size) end)
+    chunk_by =
+      if Enum.count(new_items) > 100 do
+        div(Enum.count(new_items), 100)
+      else
+        1
+      end
 
-    #chunk_by =
-      #if Enum.count(feed_items_without_metadata) > 100 do
-        #div(Enum.count(feed_items_without_metadata), 100)
-      #else
-        #1
-      #end
-
-    #feed_items_without_metadata
-    #|> Enum.chunk_every(chunk_by)
-    #|> Enum.map(fn chunk ->
-      #Task.async(fn ->
-        #Enum.each(chunk, fn item -> fetch_item_metadata(item) end)
-      #end)
-    #end)
-    #|> Enum.each(&Task.await(&1, :infinity))
+    new_items
+    |> Enum.chunk_every(chunk_by)
+    |> Enum.map(fn chunk ->
+      Task.async(fn ->
+        Enum.each(chunk, fn item -> fetch_item_metadata(item) end)
+      end)
+    end)
+    |> Enum.each(&Task.await(&1, :infinity))
   end
   
   def fetch_item_metadata(item) do
