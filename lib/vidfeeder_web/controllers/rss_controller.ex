@@ -1,4 +1,4 @@
-defmodule VidFeederWeb.FeedController do
+defmodule VidFeederWeb.RssController do
   use VidFeederWeb, :controller
 
   alias VidFeeder.{
@@ -6,7 +6,7 @@ defmodule VidFeederWeb.FeedController do
     Repo
   }
 
-  def rss(conn, params) do
+  def show(conn, params) do
     IO.inspect params
     feed = Repo.get(Feed, params["id"]) |> Repo.preload(:items)
 

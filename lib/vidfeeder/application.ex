@@ -9,6 +9,7 @@ defmodule VidFeeder.Application do
     # Define workers and child supervisors to be supervised
     children = [
       supervisor(VidFeeder.Repo, []),
+      {VidFeeder.FeedImportNotificationManager, []},
       supervisor(VidFeederWeb.Endpoint, []),
       {Task.Supervisor, name: VidFeeder.ImportFeedWorker.TaskSupervisor},
       worker(VidFeeder.ImportFeedStore, []),

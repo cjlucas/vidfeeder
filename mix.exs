@@ -49,7 +49,8 @@ defmodule VidFeeder.Mixfile do
       {:bodyguard, "~> 2.2"},
       {:cors_plug, "~> 1.5"},
       {:distillery, "~> 2.0"},
-      {:cipher, "~> 1.4"}
+      {:cipher, "~> 1.4"},
+      {:sendgrid, "~> 2.0.0-rc"}
     ]
   end
 

@@ -2,6 +2,7 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
   import Ecto.Query
 
   alias VidFeeder.{
+    FeedImportNotificationManager,
     Repo,
     Feed,
     Item
@@ -108,6 +109,7 @@ defmodule VidFeeder.FeedProcessor do # TODO: rename to FeedImporter
     IO.puts("UPDATING feed: #{feed.id}")
 
     Repo.update!(changeset)
+    FeedImportNotificationManager.import_complete(feed)
 
     IO.puts "FETCHING METADATA"
 

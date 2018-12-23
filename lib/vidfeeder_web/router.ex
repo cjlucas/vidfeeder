@@ -16,6 +16,8 @@ defmodule VidFeederWeb.Router do
   scope "/api", VidFeederWeb.API do
     pipe_through :api
 
+    post "/email_notifications", EmailNotificationController, :create
+
     post "/sessions", SessionController, :create
 
     post "/subscriptions", SubscriptionController, :create
@@ -29,7 +31,7 @@ defmodule VidFeederWeb.Router do
     get "/feeds/:id", FeedController, :show
   end
 
-  get "/rss/:id", VidFeederWeb.FeedController, :rss
+  get "/rss/:id", VidFeederWeb.RssController, :show
   
   scope "/", VidFeederWeb do
     pipe_through :browser # Use the default browser stack

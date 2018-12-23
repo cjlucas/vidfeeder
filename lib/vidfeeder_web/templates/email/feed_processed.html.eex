@@ -1,0 +1,8 @@
+<p>Your feed for "<%= @feed.title %>" is ready!</p>
+
+<p>Copy the URL below and add it to your favorite podcasting client:</p>
+
+<br />
+<br />
+
+<a href="<%= rss_url(VidFeederWeb.Endpoint, :show, @feed) %>"><%= rss_url(VidFeederWeb.Endpoint, :show, @feed) %></a>

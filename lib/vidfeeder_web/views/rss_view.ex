@@ -1,4 +1,4 @@
-defmodule VidFeederWeb.FeedView do
+defmodule VidFeederWeb.RssView do
   use VidFeederWeb, :view
 
   def rss_duration(seconds) do
