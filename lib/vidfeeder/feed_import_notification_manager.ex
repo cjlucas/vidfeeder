@@ -41,16 +41,14 @@ defmodule VidFeeder.FeedImportNotificationManager do
 
     feed = VidFeeder.Repo.get(VidFeeder.Feed, feed.id)
 
-    Enum.each(emails, fn email ->
-      notify(email, feed)
-    end)
+    notify(emails, feed)
 
     :ok = :dets.delete(table, feed.id)
 
     {:reply, :ok, table}
   end
 
-  defp notify(email, feed) do
-    :ok = VidFeeder.FeedProcessedMailer.send(email, feed)
+  defp notify(emails, feed) do
+    :ok = VidFeeder.FeedProcessedMailer.send(emails, feed)
   end
 end
