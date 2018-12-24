@@ -21,7 +21,22 @@ import Html.Attributes
         )
 import Html.Events exposing (onInput, onSubmit)
 import Http
+import Icon
 import Source exposing (Source, SourceName(..), SourceType)
+import Spinner
+import Style exposing (style, styleList)
+import Style.Border as Border
+import Style.Color as Color
+import Style.Cursor as Cursor
+import Style.Display as Display
+import Style.Flex as Flex
+import Style.Font as Font
+import Style.Layout as Layout
+import Style.Margin as Margin
+import Style.Padding as Padding
+import Style.Sizing as Sizing
+import Style.State
+import Style.Text as Text
 import Task
 import Url
 
@@ -158,10 +173,6 @@ update msg model =
 -- View
 
 
-classes list =
-    class (String.join " " list)
-
-
 inputUrlValid inputUrl =
     let
         url =
@@ -170,40 +181,41 @@ inputUrlValid inputUrl =
     sourceFromUrlInput url /= Nothing
 
 
+inputEmpty inputText =
+    (String.length << String.trim) inputText == 0
+
+
 feedUrlForm inputText =
     let
-        inputBorder =
-            if inputUrlValid inputText || (String.length << String.trim) inputText == 0 then
-                "border-grey-light"
+        urlValid =
+            inputUrlValid inputText
 
-            else
-                "border-red"
-
-        buttonDisabledClasses =
-            if inputUrlValid inputText then
-                [ "hover:bg-blue-dark" ]
-
-            else
-                [ "opacity-50", "cursor-not-allowed" ]
-
-        buttonClasses =
-            [ "border-4"
-            , "px-2"
-            , "py-1"
-            , "border-transparent"
-            , "text-white"
-            , "font-bold"
-            , "bg-blue"
-            , "rounded-lg"
-            ]
-                ++ buttonDisabledClasses
+        validUrlOrEmpty =
+            urlValid || inputEmpty inputText
     in
     form
-        [ class ("flex items-center py-2 border-b border-b2 " ++ inputBorder)
+        [ style
+            [ Display.flex
+            , Flex.itemsCenter
+            , Padding.y 2
+            , Border.bottom 1
+            ]
+        , styleList
+            [ ( Color.border Color.LightGrey, validUrlOrEmpty )
+            , ( Color.border Color.Red, not validUrlOrEmpty )
+            ]
         , onSubmit CreateFeed
         ]
         [ input
-            [ class "pr-4 appearance-none bg-transparent border-none w-full text-grey-dark focus:outline-none"
+            [ style
+                [ Sizing.fullWidth
+                , Padding.right 4
+                , Color.background Color.Transparent
+                , Border.none
+                , Color.text Color.DarkGrey
+                , Style.State.focus Style.outlineNone
+                , Style.appearanceNone
+                ]
             , value inputText
             , type_ "text"
             , placeholder "Feed URL"
@@ -211,7 +223,21 @@ feedUrlForm inputText =
             ]
             []
         , button
-            [ classes buttonClasses
+            [ style
+                [ Style.roundedLarge
+                , Border.all 4
+                , Padding.x 2
+                , Padding.y 1
+                , Color.border Color.Transparent
+                , Color.text Color.White
+                , Color.background Color.Blue
+                , Style.State.hover (Color.background Color.DarkBlue)
+                , Font.bold
+                ]
+            , styleList
+                [ ( Style.opacity 50, not urlValid )
+                , ( Cursor.notAllowed, not urlValid )
+                ]
             , disabled (not (inputUrlValid inputText))
             ]
             [ text "Create" ]
@@ -229,38 +255,65 @@ feedPreview feed =
         image =
             case feed.imageUrl of
                 Just url ->
-                    img [ class "h-32 w-32", src url ] []
+                    img [ style [ Sizing.height 32, Sizing.width 32 ], src url ] []
 
                 Nothing ->
                     text ""
     in
     div []
-        [ div [ class "flex mb-4" ]
+        [ div
+            [ style
+                [ Display.flex
+                , Margin.bottom 4
+                ]
+            ]
             [ image
-            , div [ class "pl-6" ]
-                [ h1 [ class "mb-2" ] [ text title ]
+            , div [ style [ Padding.left 6 ] ]
+                [ h1 [ style [ Margin.bottom 2 ] ] [ text title ]
                 , text description
                 ]
             ]
-        , div [ class "flex justify-between items-center pt-2 pb-2" ]
+        , div
+            [ style
+                [ Display.flex
+                , Flex.justifyBetween
+                , Flex.itemsCenter
+                , Padding.top 2
+                , Padding.bottom 2
+                ]
+            ]
             [ a
-                [ class "block flex items-center no-underline text-grey-light hover:text-orange"
+                [ style
+                    [ Display.flex
+                    , Flex.itemsCenter
+                    , Color.text Color.LightGrey
+                    , Style.State.hover (Color.text Color.Orange)
+                    , Font.noUnderline
+                    ]
                 , href ("/rss/" ++ feed.id)
                 , target "_blank"
                 ]
-                [ i [ class "fa fa-2x fa-rss pr-2" ] []
-                , span [ class "font-bold text-2xl" ] [ text "RSS" ]
+                [ Icon.rss Icon.Medium [ style [ Padding.right 2 ] ]
+                , span
+                    [ style [ Font.bold, Text.xxl ] ]
+                    [ text "RSS" ]
                 ]
-            , img [ class "h-8", src "http://oi63.tinypic.com/34njn82.jpg" ] []
+            , img [ style [ Sizing.height 8 ], src "http://oi63.tinypic.com/34njn82.jpg" ] []
             ]
         ]
 
 
 viewError : Html Msg
 viewError =
-    div [ class "text-center" ]
-        [ p [ class "font-bold text-2xl" ] [ text "Ut oh!" ]
-        , i [ class "fa fa-5x fa-exclamation-circle my-4 text-red" ] []
+    div
+        [ style [ Text.center ] ]
+        [ p [ style [ Font.bold, Text.xxl ] ] [ text "Ut oh!" ]
+        , Icon.exclamationCircle Icon.Large
+            [ style
+                [ Margin.y 4
+                , Color.text Color.Red
+                ]
+            ]
         , p [] [ text "There was an error processing your request. Please try again." ]
         ]
 
@@ -269,7 +322,7 @@ viewEmailNotification : Bool -> Maybe String -> Html Msg
 viewEmailNotification requestInFlight maybeFeedId =
     let
         formStyles =
-            [ class "pt-4" ]
+            [ style [ Padding.top 4 ] ]
 
         formAttrs =
             formStyles
@@ -281,22 +334,47 @@ viewEmailNotification requestInFlight maybeFeedId =
                             []
                    )
     in
-    div [ class "text-center" ]
-        [ p [ class "font-bold text-2xl pb-4" ] [ text "Ut oh!" ]
+    div [ style [ Text.center ] ]
+        [ p
+            [ style
+                [ Font.bold
+                , Text.xxl
+                , Padding.bottom 4
+                ]
+            ]
+            [ text "Ut oh!" ]
         , p [] [ text "This feed is taking longer to generate than expected." ]
         , p [] [ text "Enter your email below and we'll let you know when it's ready." ]
         , form formAttrs
             [ input
-                [ class "pr-4 w-1/2 border-1 border-grey-light rounded text-grey-dark"
+                [ style
+                    [ Style.rounded
+                    , Sizing.halfWidth
+                    , Padding.right 4
+                    , Border.all 1
+                    , Color.border Color.LightGrey
+                    , Color.text Color.DarkGrey
+                    ]
                 , type_ "text"
                 , onInput EmailInputChanged
                 , disabled requestInFlight
                 , placeholder "me@example.com"
                 ]
                 []
-            , div [ class "pt-4" ]
+            , div
+                [ style [ Padding.top 4 ] ]
                 [ button
-                    [ class "border-4 px-2 py-1 border-transparent text-white font-bold bg-green hover:bg-green-dark rounded-lg"
+                    [ style
+                        [ Style.roundedLarge
+                        , Color.background Color.Green
+                        , Style.State.hover (Color.background Color.DarkGreen)
+                        , Color.border Color.Transparent
+                        , Color.text Color.White
+                        , Padding.x 2
+                        , Padding.y 1
+                        , Border.all 4
+                        , Font.bold
+                        ]
                     , disabled requestInFlight
                     ]
                     [ text "Notify me" ]
@@ -309,12 +387,9 @@ viewFeedRequest : RequestState Api.GetFeedResponse -> Html Msg
 viewFeedRequest requestState =
     case requestState of
         Waiting ->
-            div [ class "text-center" ]
-                [ p [ class "font-bold text-2xl" ] [ text "We're working on it!" ]
-                , div [ class "sk-double-bounce" ]
-                    [ div [ class "sk-child sk-double-bounce1" ] []
-                    , div [ class "sk-child sk-double-bounce2" ] []
-                    ]
+            div [ style [ Text.center ] ]
+                [ p [ style [ Font.bold, Text.xxl ] ] [ text "We're working on it!" ]
+                , Spinner.doubleBounce
                 , p [] [ text "Please be patient while we generate your feed." ]
                 ]
 
@@ -337,9 +412,14 @@ viewEmailNotificationRequest requestState =
             viewError
 
         Done () ->
-            div [ class "text-center" ]
-                [ p [ class "font-bold text-2xl" ] [ text "Got it!" ]
-                , i [ class "fa fa-5x fa-check-circle my-4 text-green" ] []
+            div [ style [ Text.center ] ]
+                [ p [ style [ Font.bold, Text.xxl ] ] [ text "Got it!" ]
+                , Icon.checkCircle Icon.Large
+                    [ style
+                        [ Margin.y 4
+                        , Color.text Color.Green
+                        ]
+                    ]
                 , p [] [ text "We'll send you an email when we've finished processing your feed." ]
                 ]
 
@@ -360,13 +440,35 @@ view model =
     in
     { title = "Home"
     , body =
-        [ div [ class "flex container mx-auto my-auto h-screen font-sans" ]
-            [ div [ class "mx-auto my-auto w-1/2" ]
-                [ div [ class "rounded-xl shadow-lg px-6 pt-12 pb-4 bg-white" ]
-                    [ feedUrlForm model.urlInput
-                    , div [ class "mt-8" ]
-                        [ subview
+        [ div
+            [ style
+                [ Display.flex
+                , Layout.container
+                , Margin.autoX
+                , Margin.autoY
+                , Sizing.screenHeight
+                , Font.sans
+                ]
+            ]
+            [ div
+                [ style
+                    [ Margin.autoX
+                    , Margin.autoY
+                    , Sizing.halfWidth
+                    ]
+                ]
+                [ div
+                    [ style
+                        [ Style.roundedExtraLarge
+                        , Style.shadowLarge
+                        , Padding.x 6
+                        , Padding.top 12
+                        , Padding.bottom 4
+                        , Color.background Color.White
                         ]
+                    ]
+                    [ feedUrlForm model.urlInput
+                    , div [ style [ Margin.top 8 ] ] [ subview ]
                     ]
                 ]
             ]
