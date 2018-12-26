@@ -1,8 +1,8 @@
 module Style exposing
     ( Style(..)
-    , appearanceNone
+    , noAppearance
+    , noOutline
     , opacity
-    , outlineNone
     , shadowLarge
     , style
     , styleList
@@ -37,7 +37,7 @@ asClass style_ =
 -- APPEARANCE
 
 
-appearanceNone =
+noAppearance =
     ClassStyle "appearance-none"
 
 
@@ -53,7 +53,7 @@ opacity percentage =
 -- OUTLINE
 
 
-outlineNone =
+noOutline =
     ClassStyle "outline-none"
 
 

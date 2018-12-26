@@ -214,8 +214,8 @@ feedUrlForm inputText =
                 , Background.color Color.transparent
                 , Border.none
                 , Font.color Color.darkGrey
-                , Style.State.focus Style.outlineNone
-                , Style.appearanceNone
+                , Style.State.focus Style.noOutline
+                , Style.noAppearance
                 ]
             , value inputText
             , type_ "text"
