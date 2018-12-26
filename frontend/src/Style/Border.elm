@@ -1,29 +1,72 @@
-module Style.Border exposing (all, bottom, left, none, right, top)
+module Style.Border exposing
+    ( all
+    , bottom
+    , color
+    , left
+    , none
+    , right
+    , rounded
+    , roundedExtraLarge
+    , roundedLarge
+    , top
+    )
+
+import Style exposing (Style(..))
+import Style.Color as Color
+
+
+
+-- SIZING
 
 
 none =
-    "border-none"
+    ClassStyle "border-none"
 
 
-all size =
-    borderSize "border" size
+all =
+    borderSize "border"
 
 
-top size =
-    borderSize "border-t" size
+top =
+    borderSize "border-t"
 
 
-right size =
-    borderSize "border-r" size
+right =
+    borderSize "border-r"
 
 
-left size =
-    borderSize "border-l" size
+left =
+    borderSize "border-l"
 
 
-bottom size =
-    borderSize "border-b" size
+bottom =
+    borderSize "border-b"
 
 
 borderSize direction size =
-    direction ++ "-" ++ String.fromInt size
+    ClassStyle (direction ++ "-" ++ String.fromInt size)
+
+
+
+-- ROUNDING
+
+
+rounded =
+    ClassStyle "rounded"
+
+
+roundedLarge =
+    ClassStyle "rounded-lg"
+
+
+roundedExtraLarge =
+    ClassStyle "rounded-xl"
+
+
+
+-- STYLING
+
+
+color : Color.Color -> Style
+color color_ =
+    ClassStyle ("border-" ++ Color.asClass color_)

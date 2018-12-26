@@ -25,6 +25,7 @@ import Icon
 import Source exposing (Source, SourceName(..), SourceType)
 import Spinner
 import Style exposing (style, styleList)
+import Style.Background as Background
 import Style.Border as Border
 import Style.Color as Color
 import Style.Cursor as Cursor
@@ -196,13 +197,13 @@ feedUrlForm inputText =
     form
         [ style
             [ Display.flex
-            , Flex.itemsCenter
+            , Flex.centerAlignItems
             , Padding.y 2
             , Border.bottom 1
             ]
         , styleList
-            [ ( Color.border Color.LightGrey, validUrlOrEmpty )
-            , ( Color.border Color.Red, not validUrlOrEmpty )
+            [ ( Border.color Color.lightGrey, validUrlOrEmpty )
+            , ( Border.color Color.red, not validUrlOrEmpty )
             ]
         , onSubmit CreateFeed
         ]
@@ -210,9 +211,9 @@ feedUrlForm inputText =
             [ style
                 [ Sizing.fullWidth
                 , Padding.right 4
-                , Color.background Color.Transparent
+                , Background.color Color.transparent
                 , Border.none
-                , Color.text Color.DarkGrey
+                , Font.color Color.darkGrey
                 , Style.State.focus Style.outlineNone
                 , Style.appearanceNone
                 ]
@@ -224,14 +225,14 @@ feedUrlForm inputText =
             []
         , button
             [ style
-                [ Style.roundedLarge
+                [ Border.roundedLarge
                 , Border.all 4
                 , Padding.x 2
                 , Padding.y 1
-                , Color.border Color.Transparent
-                , Color.text Color.White
-                , Color.background Color.Blue
-                , Style.State.hover (Color.background Color.DarkBlue)
+                , Border.color Color.transparent
+                , Font.color Color.white
+                , Background.color Color.blue
+                , Style.State.hover (Background.color Color.darkBlue)
                 , Font.bold
                 ]
             , styleList
@@ -277,7 +278,7 @@ feedPreview feed =
             [ style
                 [ Display.flex
                 , Flex.justifyBetween
-                , Flex.itemsCenter
+                , Flex.centerAlignItems
                 , Padding.top 2
                 , Padding.bottom 2
                 ]
@@ -285,9 +286,9 @@ feedPreview feed =
             [ a
                 [ style
                     [ Display.flex
-                    , Flex.itemsCenter
-                    , Color.text Color.LightGrey
-                    , Style.State.hover (Color.text Color.Orange)
+                    , Flex.centerAlignItems
+                    , Font.color Color.lightGrey
+                    , Style.State.hover (Font.color Color.orange)
                     , Font.noUnderline
                     ]
                 , href ("/rss/" ++ feed.id)
@@ -295,7 +296,7 @@ feedPreview feed =
                 ]
                 [ Icon.rss Icon.Medium [ style [ Padding.right 2 ] ]
                 , span
-                    [ style [ Font.bold, Text.xxl ] ]
+                    [ style [ Font.bold, Font.xxl ] ]
                     [ text "RSS" ]
                 ]
             , img [ style [ Sizing.height 8 ], src "http://oi63.tinypic.com/34njn82.jpg" ] []
@@ -307,11 +308,11 @@ viewError : Html Msg
 viewError =
     div
         [ style [ Text.center ] ]
-        [ p [ style [ Font.bold, Text.xxl ] ] [ text "Ut oh!" ]
+        [ p [ style [ Font.bold, Font.xxl ] ] [ text "Ut oh!" ]
         , Icon.exclamationCircle Icon.Large
             [ style
                 [ Margin.y 4
-                , Color.text Color.Red
+                , Font.color Color.red
                 ]
             ]
         , p [] [ text "There was an error processing your request. Please try again." ]
@@ -338,7 +339,7 @@ viewEmailNotification requestInFlight maybeFeedId =
         [ p
             [ style
                 [ Font.bold
-                , Text.xxl
+                , Font.xxl
                 , Padding.bottom 4
                 ]
             ]
@@ -348,12 +349,12 @@ viewEmailNotification requestInFlight maybeFeedId =
         , form formAttrs
             [ input
                 [ style
-                    [ Style.rounded
+                    [ Border.rounded
                     , Sizing.halfWidth
                     , Padding.right 4
                     , Border.all 1
-                    , Color.border Color.LightGrey
-                    , Color.text Color.DarkGrey
+                    , Border.color Color.lightGrey
+                    , Font.color Color.darkGrey
                     ]
                 , type_ "text"
                 , onInput EmailInputChanged
@@ -365,11 +366,11 @@ viewEmailNotification requestInFlight maybeFeedId =
                 [ style [ Padding.top 4 ] ]
                 [ button
                     [ style
-                        [ Style.roundedLarge
-                        , Color.background Color.Green
-                        , Style.State.hover (Color.background Color.DarkGreen)
-                        , Color.border Color.Transparent
-                        , Color.text Color.White
+                        [ Border.roundedLarge
+                        , Background.color Color.green
+                        , Style.State.hover (Background.color Color.darkGreen)
+                        , Border.color Color.transparent
+                        , Font.color Color.white
                         , Padding.x 2
                         , Padding.y 1
                         , Border.all 4
@@ -388,7 +389,7 @@ viewFeedRequest requestState =
     case requestState of
         Waiting ->
             div [ style [ Text.center ] ]
-                [ p [ style [ Font.bold, Text.xxl ] ] [ text "We're working on it!" ]
+                [ p [ style [ Font.bold, Font.xxl ] ] [ text "We're working on it!" ]
                 , Spinner.doubleBounce
                 , p [] [ text "Please be patient while we generate your feed." ]
                 ]
@@ -413,11 +414,11 @@ viewEmailNotificationRequest requestState =
 
         Done () ->
             div [ style [ Text.center ] ]
-                [ p [ style [ Font.bold, Text.xxl ] ] [ text "Got it!" ]
+                [ p [ style [ Font.bold, Font.xxl ] ] [ text "Got it!" ]
                 , Icon.checkCircle Icon.Large
                     [ style
                         [ Margin.y 4
-                        , Color.text Color.Green
+                        , Font.color Color.green
                         ]
                     ]
                 , p [] [ text "We'll send you an email when we've finished processing your feed." ]
@@ -459,12 +460,12 @@ view model =
                 ]
                 [ div
                     [ style
-                        [ Style.roundedExtraLarge
+                        [ Border.roundedExtraLarge
                         , Style.shadowLarge
                         , Padding.x 6
                         , Padding.top 12
                         , Padding.bottom 4
-                        , Color.background Color.White
+                        , Background.color Color.white
                         ]
                     ]
                     [ feedUrlForm model.urlInput

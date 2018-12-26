@@ -1,23 +1,11 @@
 module Style.Display exposing (block, flex)
 
-
-type DisplayTypes
-    = Flex
-    | Block
+import Style exposing (Style(..))
 
 
 flex =
-    display Flex
+    ClassStyle "flex"
 
 
 block =
-    display Block
-
-
-display type_ =
-    case type_ of
-        Flex ->
-            "flex"
-
-        Block ->
-            "block"
+    ClassStyle "block"

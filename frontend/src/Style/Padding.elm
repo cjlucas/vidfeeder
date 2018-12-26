@@ -1,29 +1,31 @@
 module Style.Padding exposing (bottom, left, right, top, x, y)
 
-
-bottom size =
-    padding "pb" size
+import Style exposing (Style(..))
 
 
-left size =
-    padding "pl" size
+bottom =
+    padding "pb"
 
 
-right size =
-    padding "pr" size
+left =
+    padding "pl"
 
 
-top size =
-    padding "pt" size
+right =
+    padding "pr"
 
 
-x size =
-    padding "px" size
+top =
+    padding "pt"
 
 
-y size =
-    padding "py" size
+x =
+    padding "px"
+
+
+y =
+    padding "py"
 
 
 padding className size =
-    className ++ "-" ++ String.fromInt size
+    ClassStyle (className ++ "-" ++ String.fromInt size)

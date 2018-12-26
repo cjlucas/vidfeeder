@@ -1,63 +1,67 @@
-module Style.Color exposing (Color(..), background, border, text)
+module Style.Color exposing
+    ( Color
+    , asClass
+    , blue
+    , darkBlue
+    , darkGreen
+    , darkGrey
+    , green
+    , grey
+    , lightGrey
+    , orange
+    , red
+    , transparent
+    , white
+    )
 
 
 type Color
-    = Red
-    | Blue
-    | DarkBlue
-    | Green
-    | DarkGreen
-    | Orange
-    | LightGrey
-    | Grey
-    | DarkGrey
-    | White
-    | Transparent
+    = Color String
 
 
-text color =
-    "text-" ++ strColor color
+red =
+    Color "red"
 
 
-background color =
-    "bg-" ++ strColor color
+blue =
+    Color "blue"
 
 
-border color =
-    "border-" ++ strColor color
+darkBlue =
+    Color "blue-dark"
 
 
-strColor color =
-    case color of
-        Red ->
-            "red"
+green =
+    Color "green"
 
-        Blue ->
-            "blue"
 
-        DarkBlue ->
-            "blue-dark"
+darkGreen =
+    Color "green-dark"
 
-        Green ->
-            "green"
 
-        DarkGreen ->
-            "green-dark"
+orange =
+    Color "orange"
 
-        Orange ->
-            "orange"
 
-        LightGrey ->
-            "grey-light"
+lightGrey =
+    Color "grey-light"
 
-        Grey ->
-            "grey"
 
-        DarkGrey ->
-            "grey-dark"
+grey =
+    Color "grey"
 
-        White ->
-            "white"
 
-        Transparent ->
-            "transparent"
+darkGrey =
+    Color "grey-dark"
+
+
+white =
+    Color "white"
+
+
+transparent =
+    Color "transparent"
+
+
+asClass (Color str) =
+    str

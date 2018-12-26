@@ -1,9 +1,11 @@
-module Style.Flex exposing (itemsCenter, justifyBetween)
+module Style.Flex exposing (centerAlignItems, justifyBetween)
+
+import Style exposing (Style(..))
 
 
 justifyBetween =
-    "justify-between"
+    ClassStyle "justify-between"
 
 
-itemsCenter =
-    "items-center"
+centerAlignItems =
+    ClassStyle "items-center"

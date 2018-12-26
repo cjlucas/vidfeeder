@@ -1,37 +1,39 @@
 module Style.Margin exposing (autoX, autoY, bottom, left, right, top, x, y)
 
+import Style exposing (Style(..))
+
 
 autoX =
-    "mx-auto"
+    ClassStyle "mx-auto"
 
 
 autoY =
-    "my-auto"
+    ClassStyle "my-auto"
 
 
-bottom size =
-    margin "mb" size
+bottom =
+    margin "mb"
 
 
-left size =
-    margin "ml" size
+left =
+    margin "ml"
 
 
-right size =
-    margin "mr" size
+right =
+    margin "mr"
 
 
-top size =
-    margin "mt" size
+top =
+    margin "mt"
 
 
-x size =
-    margin "mx" size
+x =
+    margin "mx"
 
 
-y size =
-    margin "my" size
+y =
+    margin "my"
 
 
 margin className size =
-    className ++ "-" ++ String.fromInt size
+    ClassStyle (className ++ "-" ++ String.fromInt size)

@@ -1,10 +1,8 @@
 module Style exposing
-    ( appearanceNone
+    ( Style(..)
+    , appearanceNone
     , opacity
     , outlineNone
-    , rounded
-    , roundedExtraLarge
-    , roundedLarge
     , shadowLarge
     , style
     , styleList
@@ -14,14 +12,25 @@ import Html
 import Html.Attributes exposing (class, classList)
 
 
-style : List String -> Html.Attribute msg
+type Style
+    = ClassStyle String
+
+
+style : List Style -> Html.Attribute msg
 style styles =
-    class (String.join " " styles)
+    class <| String.join " " <| List.map asClass styles
 
 
-styleList : List ( String, Bool ) -> Html.Attribute msg
+styleList : List ( Style, Bool ) -> Html.Attribute msg
 styleList styles =
-    classList styles
+    classList <|
+        List.map (\( s, enabled ) -> ( asClass s, enabled )) styles
+
+
+asClass style_ =
+    case style_ of
+        ClassStyle class ->
+            class
 
 
 
@@ -29,7 +38,7 @@ styleList styles =
 
 
 appearanceNone =
-    "appearance-none"
+    ClassStyle "appearance-none"
 
 
 
@@ -37,7 +46,7 @@ appearanceNone =
 
 
 opacity percentage =
-    "opacity-" ++ String.fromInt percentage
+    ClassStyle ("opacity-" ++ String.fromInt percentage)
 
 
 
@@ -45,23 +54,7 @@ opacity percentage =
 
 
 outlineNone =
-    "outline-none"
-
-
-
--- ROUNDING
-
-
-rounded =
-    "rounded"
-
-
-roundedLarge =
-    "rounded-lg"
-
-
-roundedExtraLarge =
-    "rounded-xl"
+    ClassStyle "outline-none"
 
 
 
@@ -69,4 +62,4 @@ roundedExtraLarge =
 
 
 shadowLarge =
-    "shadow-lg"
+    ClassStyle "shadow-lg"

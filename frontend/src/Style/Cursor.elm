@@ -1,15 +1,7 @@
 module Style.Cursor exposing (notAllowed)
 
-
-type CursorTypes
-    = NotAllowed
+import Style exposing (Style(..))
 
 
 notAllowed =
-    cursor NotAllowed
-
-
-cursor type_ =
-    case type_ of
-        NotAllowed ->
-            "cursor-not-allowed"
+    ClassStyle "cursor-not-allowed"

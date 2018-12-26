@@ -1,21 +1,23 @@
 module Style.Sizing exposing (fullWidth, halfWidth, height, screenHeight, width)
 
+import Style exposing (Style(..))
+
 
 fullWidth =
-    "w-full"
+    ClassStyle "w-full"
 
 
 halfWidth =
-    "w-1/2"
+    ClassStyle "w-1/2"
 
 
 width n =
-    "w-" ++ String.fromInt n
+    ClassStyle ("w-" ++ String.fromInt n)
 
 
 height n =
-    "h-" ++ String.fromInt n
+    ClassStyle ("h-" ++ String.fromInt n)
 
 
 screenHeight =
-    "h-screen"
+    ClassStyle "h-screen"
