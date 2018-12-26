@@ -2,7 +2,7 @@ defmodule VidFeeder.FeedImportNotificationManager do
   use GenServer
 
   ## Client
-  
+
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -24,11 +24,12 @@ defmodule VidFeeder.FeedImportNotificationManager do
   end
 
   def handle_call({:notify_user, email, feed}, _from, table) do
-    ret = 
+    ret =
       case feed.state do
         "imported" ->
           notify(email, feed)
           :ok
+
         _ ->
           :dets.insert(table, {feed.id, email})
       end
@@ -39,11 +40,12 @@ defmodule VidFeeder.FeedImportNotificationManager do
   def handle_call({:import_complete, feed}, _from, table) do
     emails = table |> :dets.lookup(feed.id) |> Enum.map(&elem(&1, 1))
 
-    feed = VidFeeder.Repo.get(VidFeeder.Feed, feed.id)
+    unless Enum.empty?(emails) do
+      feed = VidFeeder.Repo.get(VidFeeder.Feed, feed.id)
+      notify(emails, feed)
 
-    notify(emails, feed)
-
-    :ok = :dets.delete(table, feed.id)
+      :ok = :dets.delete(table, feed.id)
+    end
 
     {:reply, :ok, table}
   end
