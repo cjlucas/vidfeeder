@@ -16,7 +16,7 @@ defmodule VidFeeder.YouTubePlaylistItem do
   end
 
   def build(playlist, playlist_item_id) do
-    Ecto.build_assoc(playlist, :youtube_playlist_items, playlist_item_id: playlist_item_id)
+    Ecto.build_assoc(playlist, :items, playlist_item_id: playlist_item_id)
   end
 
   def api_changeset(youtube_playlist_item, %YouTube.PlaylistItem{} = playlist_item) do
@@ -29,6 +29,6 @@ defmodule VidFeeder.YouTubePlaylistItem do
   def changeset(youtube_playlist_item, params \\ %{}) do
     youtube_playlist_item
     |> cast(params, [:position])
-    |> put_assoc(:youtube_video, Map.take(params, [:video_id]))
+    |> put_assoc(:video, Map.take(params, [:video_id]))
   end
 end

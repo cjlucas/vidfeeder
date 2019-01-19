@@ -81,28 +81,28 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
       |> create_or_update_videos_from_playlist_items(playlist_items)
       |> Enum.reduce(%{}, fn video, acc -> Map.put(acc, video.video_id, video) end)
 
-    youtube_playlist = Repo.preload(youtube_playlist, youtube_playlist_items: :youtube_video)
+    youtube_playlist = Repo.preload(youtube_playlist, items: :video)
 
     youtube_playlist_items =
-      youtube_playlist.youtube_playlist_items
+      youtube_playlist.items
       |> YouTubePlaylistItemsDiffer.diff(playlist_items)
       |> Enum.map(fn
         {:new, playlist_item} ->
           youtube_playlist
           |> VidFeeder.YouTubePlaylistItem.build(playlist_item.id)
-          |> VidFeeder.YouTubePlaylistItem.from_api_changeset(playlist_item)
-          |> Ecto.Changeset.put_assoc(:youtube_video, youtube_videos_by_video_id[playlist_item.video_id])
+          |> VidFeeder.YouTubePlaylistItem.api_changeset(playlist_item)
+          |> Ecto.Changeset.put_assoc(:video, youtube_videos_by_video_id[playlist_item.video_id])
 
         {:existing, youtube_playlist_item, playlist_item} ->
           youtube_playlist_item
-          |> VidFeeder.YouTubePlaylistItem.from_api_changeset(playlist_item)
-          |> Ecto.Changeset.put_assoc(:youtube_video, youtube_videos_by_video_id[playlist_item.video_id])
+          |> VidFeeder.YouTubePlaylistItem.api_changeset(playlist_item)
+          |> Ecto.Changeset.put_assoc(:video, youtube_videos_by_video_id[playlist_item.video_id])
       end)
 
     youtube_playlist = 
       youtube_playlist
       |> Ecto.Changeset.change
-      |> Ecto.Changeset.put_assoc(:youtube_playlist_items, youtube_playlist_items)
+      |> Ecto.Changeset.put_assoc(:items, youtube_playlist_items)
       |> Repo.update!
 
     {:ok, youtube_playlist}
@@ -126,12 +126,12 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
         nil ->
           video.id
           |> YouTubeVideo.build
-          |> YouTubeVideo.from_api_changeset(video)
+          |> YouTubeVideo.api_changeset(video)
           |> Repo.insert!
 
         youtube_video ->
           youtube_video
-          |> YouTubeVideo.from_api_changeset(video)
+          |> YouTubeVideo.api_changeset(video)
           |> Repo.update!
       end
     end)

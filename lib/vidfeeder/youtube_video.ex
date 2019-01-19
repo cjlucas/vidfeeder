@@ -17,7 +17,7 @@ defmodule VidFeeder.YouTubeVideo do
     %__MODULE__{video_id: video_id}
   end
 
-  def from_api_changeset(youtube_video, %YouTube.Video{} = video) do
+  def api_changeset(youtube_video, %YouTube.Video{} = video) do
     changeset(youtube_video, %{
       title: video.title,
       description: video.description,

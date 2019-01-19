@@ -28,8 +28,8 @@ defmodule VidFeeder.Repo.Migrations.CreateSource do
       add :position, :integer
       add :published_at, :utc_datetime
 
-      add :youtube_playlist_id, references(:youtube_playlists)
-      add :youtube_video_id, references(:youtube_videos)
+      add :playlist_id, references(:youtube_playlists)
+      add :video_id, references(:youtube_videos)
 
       timestamps()
     end
