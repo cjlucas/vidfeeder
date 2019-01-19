@@ -6,27 +6,29 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
   require Logger
 
   defmodule YouTubePlaylistItemsDiffer do
-    defstruct [
-      :youtube_playlist_items,
-      :youtube_playlist_items_ids,
-      :youtube_playlist_items_map,
-      :playlist_items,
-      :playlist_items_ids,
-      :playlist_items_map
-    ]
+    def diff(youtube_playlist_items, playlist_items) do
+      {youtube_playlist_items_ids, youtube_playlist_items_map} =
+        build_cache(youtube_playlist_items, :playlist_item_id)
 
-    def new(youtube_playlist_items, playlist_items) do
-      {youtube_playlist_items_ids, youtube_playlist_items_map} = build_cache(youtube_playlist_items, :playlist_item_id)
-      {playlist_items_ids, playlist_items_map} = build_cache(playlist_items, :id)
+      {playlist_items_ids, playlist_items_map} =
+        build_cache(playlist_items, :id)
 
-      %__MODULE__{
-        youtube_playlist_items: youtube_playlist_items,
-        youtube_playlist_items_ids: youtube_playlist_items_ids,
-        youtube_playlist_items_map: youtube_playlist_items_map,
-        playlist_items: playlist_items,
-        playlist_items_ids: playlist_items_ids,
-        playlist_items_map: playlist_items_map
-      }
+      new_items =
+        playlist_items_ids
+        |> MapSet.difference(youtube_playlist_items_ids)
+        |> Enum.map(fn id ->
+          {:new, playlist_items_map[id]}
+        end)
+
+      existing_items =
+        playlist_items_ids 
+        |> MapSet.intersection(youtube_playlist_items_ids)
+        |> Enum.map(fn id ->
+          playlist_item = playlist_items_map[id]
+          {:existing, youtube_playlist_items_map[id], playlist_item}
+        end)
+
+      new_items ++ existing_items
     end
 
     defp build_cache(collection, key) do
@@ -39,23 +41,6 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
       end)
 
       {ids, map}
-    end
-
-    def new_playlist_items(differ) do
-      differ.playlist_items_ids
-      |> MapSet.difference(differ.youtube_playlist_items_ids)
-      |> Enum.map(fn id -> Map.get(differ.playlist_items_map, id) end)
-    end
-
-    def existing_playlist_items(differ) do
-      differ.playlist_items_ids
-      |> MapSet.intersection(differ.youtube_playlist_items_ids)
-      |> Enum.map(fn id ->
-        playlist_item = Map.get(differ.playlist_items_map, id)
-        youtube_playlist_item = Map.get(differ.youtube_playlist_items_map, id)
-
-        {youtube_playlist_item, playlist_item}
-      end)
     end
   end
 
@@ -99,33 +84,27 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
       |> Enum.reduce(%{}, fn video, acc -> Map.put(acc, video.video_id, video) end)
 
     youtube_playlist = Repo.preload(youtube_playlist, youtube_playlist_items: :youtube_video)
-    youtube_playlist_items = youtube_playlist.youtube_playlist_items
 
-    differ = YouTubePlaylistItemsDiffer.new(youtube_playlist_items, playlist_items)
+    youtube_playlist_items =
+      youtube_playlist.youtube_playlist_items
+      |> YouTubePlaylistItemsDiffer.diff(playlist_items)
+      |> Enum.map(fn
+        {:new, playlist_item} ->
+          youtube_playlist
+          |> VidFeeder.YouTubePlaylistItem.build(playlist_item.id)
+          |> VidFeeder.YouTubePlaylistItem.from_api_changeset(playlist_item)
+          |> Ecto.Changeset.put_assoc(:youtube_video, youtube_videos_by_video_id[playlist_item.video_id])
 
-    one =
-      differ
-      |> YouTubePlaylistItemsDiffer.new_playlist_items
-      |> Enum.map(fn playlist_item ->
-        youtube_playlist
-        |> VidFeeder.YouTubePlaylistItem.build(playlist_item.id)
-        |> VidFeeder.YouTubePlaylistItem.from_api_changeset(playlist_item)
-        |> Ecto.Changeset.put_assoc(:youtube_video, youtube_videos_by_video_id[playlist_item.video_id])
-      end)
-
-    two =
-      differ
-      |> YouTubePlaylistItemsDiffer.existing_playlist_items
-      |> Enum.map(fn {youtube_playlist_item, playlist_item} ->
-        youtube_playlist_item
-        |> VidFeeder.YouTubePlaylistItem.from_api_changeset(playlist_item)
-        |> Ecto.Changeset.put_assoc(:youtube_video, youtube_videos_by_video_id[playlist_item.video_id])
+        {:existing, youtube_playlist_item, playlist_item} ->
+          youtube_playlist_item
+          |> VidFeeder.YouTubePlaylistItem.from_api_changeset(playlist_item)
+          |> Ecto.Changeset.put_assoc(:youtube_video, youtube_videos_by_video_id[playlist_item.video_id])
       end)
 
     youtube_playlist = 
       youtube_playlist
       |> Ecto.Changeset.change
-      |> Ecto.Changeset.put_assoc(:youtube_playlist_items, one ++ two)
+      |> Ecto.Changeset.put_assoc(:youtube_playlist_items, youtube_playlist_items)
       |> Repo.update!
 
     {:ok, youtube_playlist}
