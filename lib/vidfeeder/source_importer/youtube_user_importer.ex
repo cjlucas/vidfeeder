@@ -22,13 +22,12 @@ defmodule VidFeeder.SourceImporter.YouTubeUserImporter do
 
   defp create_youtube_channel(youtube_user) do
     conn = YouTube.Connection.new
-    user = YouTube.User.info(conn, youtube_user.username) |> IO.inspect
+    user = YouTube.User.info(conn, youtube_user.username)
 
-    IO.inspect(youtube_user)
-
-    channel = Ecto.build_assoc(youtube_user, :channel, channel_id: user.channel.id)
-
-    channel_changeset = YouTubeChannel.api_changeset(channel, user.channel)
+    channel_changeset =
+      youtube_user
+      |> Ecto.build_assoc(:channel, channel_id: user.channel.id)
+      |> YouTubeChannel.api_changeset(user.channel)
 
     youtube_user
     |> YouTubeUser.user_channel_changeset(channel_changeset)

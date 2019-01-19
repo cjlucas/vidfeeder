@@ -51,8 +51,6 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
       nil ->
         Logger.debug("YouTube playlist cannot be found: #{youtube_playlist.playlist_id}")
       playlist ->
-        IO.inspect(playlist)
-
         if youtube_playlist.etag != playlist.etag do
           Logger.debug("Etag mismatch")
 
