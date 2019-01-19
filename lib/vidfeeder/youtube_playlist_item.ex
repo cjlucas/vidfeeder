@@ -8,9 +8,9 @@ defmodule VidFeeder.YouTubePlaylistItem do
     field :position, :integer
     field :published_at, :utc_datetime
 
-    belongs_to :youtube_video, VidFeeder.YouTubeVideo, on_replace: :update
+    belongs_to :video, VidFeeder.YouTubeVideo, on_replace: :update
 
-    belongs_to :youtube_playlist, VidFeeder.YouTubePlaylist
+    belongs_to :playlist, VidFeeder.YouTubePlaylist
 
     timestamps()
   end
