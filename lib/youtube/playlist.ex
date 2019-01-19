@@ -1,5 +1,5 @@
 defmodule YouTube.Playlist do
-  defstruct [:id, :title, :description, :image_url]
+  defstruct [:id, :etag, :title, :description, :image_url]
 
   alias GoogleApi.YouTube.V3.Api
   
@@ -12,6 +12,7 @@ defmodule YouTube.Playlist do
       [playlist] ->
         %__MODULE__{
           id: id,
+          etag: playlist.etag,
           title: playlist.snippet.title,
           description: playlist.snippet.description,
           image_url: image_url(playlist)

@@ -1,5 +1,5 @@
 defmodule YouTube.User do
-  defstruct [:username, :description, :image_url]
+  defstruct [:channel, :username, :description, :image_url]
 
   alias GoogleApi.YouTube.V3.Api
   alias YouTube.Channel
@@ -12,12 +12,13 @@ defmodule YouTube.User do
       |> Enum.map(fn channel -> channel.id end)
       |> List.first
 
-    channel_info = Channel.info(conn, channel_id)
+    channel = Channel.info(conn, channel_id)
 
     %__MODULE__{
+      channel: channel,
       username: user_name,
-      description: channel_info.description,
-      image_url: channel_info.image_url
+      description: channel.description,
+      image_url: channel.image_url
     }
   end
 

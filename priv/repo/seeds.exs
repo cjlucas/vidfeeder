@@ -13,9 +13,11 @@
 alias VidFeeder.{
   Repo,
   User,
-  Feed,
-  Subscription,
-  FeedProcessor
+  Source,
+  YouTubePlaylist,
+  YouTubeChannel,
+  YouTubeUser,
+  SourceImporter
 }
 
 user = 
@@ -27,43 +29,23 @@ user =
   })
   |> Repo.insert!
 
+source1 =
+  %YouTubePlaylist{playlist_id: "PLyAkNLi4f70XsYSdNZxpWATH8Xy31Rh_v"}
+  |> Source.build
+  |> Repo.insert!
 
-feed1 = Repo.insert!(%Feed{
-  source: "youtube",
-  source_type: "channel",
-  source_id: "UCWZTdLbltJBTlXvpzTjbszA"
-})
+SourceImporter.run(source1)
 
-feed2 = Repo.insert!(%Feed{
-  source: "youtube",
-  source_type: "user",
-  source_id: "TrumpSC"
-})
+source2 =
+  %YouTubeChannel{channel_id: "UCMu3_s7WCRCJrbh37UKmJ-A"}
+  |> Source.build
+  |> Repo.insert!
 
-feed3 = Repo.insert!(%Feed{
-  source: "youtube",
-  source_type: "playlist",
-  source_id: "PLaDrN74SfdT5xZKh7TsCL4ydk7TOduLeu"
-})
+SourceImporter.run(source2)
 
-Repo.insert!(%Subscription{
-  user_id: user.id,
-  feed_id: feed1.id,
-  title: "Omnislash"
-})
+source3 =
+  %YouTubeUser{username: "TrumpSC"}
+  |> Source.build
+  |> Repo.insert!
 
-Repo.insert!(%Subscription{
-  user_id: user.id,
-  feed_id: feed2.id,
-  title: "TrumpSC's Uploads"
-})
-
-Repo.insert!(%Subscription{
-  user_id: user.id,
-  feed_id: feed3.id,
-  title: "Awful Squad"
-})
-
-FeedProcessor.run(feed3)
-FeedProcessor.run(feed1)
-FeedProcessor.run(feed2)
+SourceImporter.run(source3)
