@@ -7,13 +7,16 @@ defmodule VidFeeder.YouTubePlaylist do
     field :playlist_id, :string
     field :etag, :string
 
-    has_many :items, VidFeeder.YouTubePlaylistItem, foreign_key: :playlist_id
+    has_many :items, VidFeeder.YouTubePlaylistItem, foreign_key: :playlist_id, on_replace: :delete
 
     timestamps()
   end
 
-  def build(playlist_id) do
-    %__MODULE__{playlist_id: playlist_id}
+  def create_changeset(playlist_id) do
+    %__MODULE__{}
+    |> change
+    |> put_change(:playlist_id, playlist_id)
+    |> unique_constraint(:playlist_id)
   end
 
   def api_changeset(youtube_playlist, %YouTube.Playlist{} = playlist) do

@@ -50,7 +50,8 @@ defmodule VidFeeder.Mixfile do
       {:cors_plug, "~> 1.5"},
       {:distillery, "~> 2.0"},
       {:cipher, "~> 1.4"},
-      {:sendgrid, "~> 2.0.0-rc"}
+      {:sendgrid, "~> 2.0.0-rc"},
+      {:gen_stage, "~> 0.14.0"}
     ]
   end
 

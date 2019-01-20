@@ -32,6 +32,10 @@ defmodule VidFeeder.SourceImporter do
       %YouTubePlaylist{} = playlist ->
         YouTubePlaylistImporter.run(playlist)
     end
+
+    source
+    |> Source.changeset(%{state: "processed", last_refreshed_at: DateTime.utc_now})
+    |> Repo.update!
   end
 
   defp underlying_source(source) do

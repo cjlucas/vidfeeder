@@ -11,7 +11,7 @@ defmodule VidFeeder.Source do
 
   schema "sources" do
     field :state, :string
-    field :last_refreshed_at, :string
+    field :last_refreshed_at, :utc_datetime
 
     belongs_to :youtube_playlist, VidFeeder.YouTubePlaylist
     belongs_to :youtube_channel, VidFeeder.YouTubeChannel

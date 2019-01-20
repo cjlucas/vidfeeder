@@ -4,7 +4,9 @@ defmodule YouTube.Playlist do
   alias GoogleApi.YouTube.V3.Api
   
   def info(conn, id) do
-    {:ok, resp} = Api.Playlists.youtube_playlists_list(conn, "snippet", id: id)
+    # Although contentDetails is not actually used, we need it to trigger
+    # an etag change if an item has been removed from the playlist.
+    {:ok, resp} = Api.Playlists.youtube_playlists_list(conn, "snippet,contentDetails", id: id)
 
     case resp.items do
       [] ->
