@@ -31,8 +31,10 @@ defmodule VidFeederWeb.API.FeedController do
         case {params["source"], params["source_type"]} do
           {"youtube", "user"} ->
             YouTubeUser.build(params["source_id"])
+
           {"youtube", "channel"} ->
             YouTubeChannel.build(params["source_id"])
+
           {"youtube", "playlist"} ->
             YouTubePlaylist.build(params["source_id"])
         end
