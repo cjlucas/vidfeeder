@@ -39,7 +39,6 @@ defmodule VidFeeder.SourceScheduler do
     fulfill_demand(demand + pending_demand, state)
   end
 
-  def handle_info(:timer_fired, %{pending_demand: demand} = state) when demand == 0, do: {:noreply, [], state}
   def handle_info(:timer_fired, %{pending_demand: demand} = state) do
     fulfill_demand(demand, state)
   end
@@ -53,11 +52,12 @@ defmodule VidFeeder.SourceScheduler do
       limit: ^demand
     )
 
-    Repo.transaction(fn ->
-      Enum.each(sources, fn source ->
-        source |> Source.changeset(%{state: "processing"}) |> Repo.update!
+    {:ok, sources} =
+      Repo.transaction(fn ->
+        Enum.map(sources, fn source ->
+          source |> Source.changeset(%{state: "processing"}) |> Repo.update!
+        end)
       end)
-    end)
 
     state = Map.put(state, :pending_demand, demand - Enum.count(sources))
     {:noreply, sources, state}
