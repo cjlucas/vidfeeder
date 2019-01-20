@@ -10,7 +10,12 @@ defmodule VidFeederWeb.API.FeedController do
   alias VidFeeder.{
     ImportFeedWorker,
     Feed,
-    Repo
+    Repo,
+    Source,
+    SourceImporter,
+    YouTubeUser,
+    YouTubeChannel,
+    YouTubePlaylist
   }
 
   def create(conn, params) do
@@ -21,6 +26,26 @@ defmodule VidFeederWeb.API.FeedController do
         |> Repo.insert!
 
       ImportFeedWorker.import_feed(feed)
+
+      underlying_source =
+        case {params["source"], params["source_type"]} do
+          {"youtube", "user"} ->
+            YouTubeUser.build(params["source_id"])
+
+          {"youtube", "channel"} ->
+            YouTubeChannel.build(params["source_id"])
+
+          {"youtube", "playlist"} ->
+            YouTubePlaylist.build(params["source_id"])
+        end
+
+      if underlying_source != nil do
+          source =
+            underlying_source
+            |> Source.build
+            |> Map.put(:id, feed.id)
+            |> Repo.insert!
+      end
 
       conn
       |> put_location_header(feed)

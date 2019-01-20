@@ -1,12 +1,12 @@
 defmodule YouTube.Channel do
-  defstruct [:id, :title, :description, :image_url]
+  defstruct [:id, :title, :description, :image_url, :related_playlists]
 
   alias GoogleApi.YouTube.V3.Api
 
   alias YouTube.Playlist
 
   def info(conn, id) do
-    {:ok, resp} = Api.Channels.youtube_channels_list(conn, "snippet", id: id)
+    {:ok, resp} = Api.Channels.youtube_channels_list(conn, "snippet,contentDetails", id: id)
 
     case resp.items do
       [] ->
@@ -16,7 +16,10 @@ defmodule YouTube.Channel do
           id: id,
           title: channel.snippet.title,
           description: channel.snippet.description,
-          image_url: image_url(channel)
+          image_url: image_url(channel),
+          related_playlists: %{
+            uploads: channel.contentDetails.relatedPlaylists.uploads
+          }
         }
     end
 
