@@ -21,7 +21,7 @@ defmodule VidFeeder.YouTubePlaylistItem do
 
   def api_changeset(youtube_playlist_item, %YouTube.PlaylistItem{} = playlist_item) do
     changeset(youtube_playlist_item, %{
-      position: nil,
+      position: playlist_item.position,
       video_id: playlist_item.video_id
     })
   end

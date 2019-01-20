@@ -31,6 +31,7 @@ defmodule YouTube.Playlist do
         video_id: item.contentDetails.videoId,
         title: item.snippet.title,
         description: item.snippet.description,
+        position: item.snippet.position,
         published_at: item.snippet.publishedAt
       }
     end)
