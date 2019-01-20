@@ -39,7 +39,8 @@ defmodule VidFeeder.SourceScheduler do
     fulfill_demand(demand + pending_demand, state)
   end
 
-  def handle_info(:timer_fired, %{pending_demand: demand} = state) when demand > 0 do
+  def handle_info(:timer_fired, %{pending_demand: demand} = state) when demand == 0, do: {:noreply, [], state}
+  def handle_info(:timer_fired, %{pending_demand: demand} = state) do
     fulfill_demand(demand, state)
   end
 
