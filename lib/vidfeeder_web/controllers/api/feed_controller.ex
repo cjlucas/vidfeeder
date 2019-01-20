@@ -27,24 +27,27 @@ defmodule VidFeederWeb.API.FeedController do
 
       ImportFeedWorker.import_feed(feed)
 
-      underlying_source =
+      underlying_source_changeset =
         case {params["source"], params["source_type"]} do
           {"youtube", "user"} ->
-            YouTubeUser.build(params["source_id"])
+            YouTubeUser.create_changeset(params["source_id"])
 
           {"youtube", "channel"} ->
-            YouTubeChannel.build(params["source_id"])
+            YouTubeChannel.create_changeset(params["source_id"])
 
           {"youtube", "playlist"} ->
-            YouTubePlaylist.build(params["source_id"])
+            YouTubePlaylist.create_changeset(params["source_id"])
         end
 
-      if underlying_source != nil do
-          source =
-            underlying_source
-            |> Source.build
-            |> Map.put(:id, feed.id)
-            |> Repo.insert!
+        if underlying_source_changeset != nil do
+          Repo.transaction(fn -> 
+            source =
+              underlying_source_changeset
+              |> Repo.insert!
+              |> Source.build
+              |> Map.put(:id, feed.id)
+              |> Repo.insert!
+          end)
       end
 
       conn

@@ -11,8 +11,11 @@ defmodule VidFeeder.YouTubeUser do
     timestamps()
   end
 
-  def build(username) do
-    %__MODULE__{username: username}
+  def create_changeset(username) do
+    %__MODULE__{}
+    |> change
+    |> put_change(:username, username)
+    |> unique_constraint(:username)
   end
 
   def user_channel_changeset(youtube_user, youtube_channel) do

@@ -16,7 +16,7 @@ defmodule VidFeeder.SourceImporter.YouTubeChannelImporter do
     uploads_playlist =
       case Repo.get_by(YouTubePlaylist, playlist_id: uploads_playlist_id) do
         nil ->
-          YouTubePlaylist.build(uploads_playlist_id) |> Repo.insert!
+          YouTubePlaylist.create_changeset(uploads_playlist_id) |> Repo.insert!
 
         playlist ->
           playlist

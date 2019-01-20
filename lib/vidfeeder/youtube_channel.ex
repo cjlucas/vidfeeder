@@ -15,8 +15,11 @@ defmodule VidFeeder.YouTubeChannel do
     timestamps()
   end
 
-  def build(channel_id) do
-    %__MODULE__{channel_id: channel_id}
+  def create_changeset(channel_id) do
+    %__MODULE__{}
+    |> change
+    |> put_change(:channel_id, channel_id)
+    |> unique_constraint(:channel_id)
   end
 
   def api_changeset(youtube_channel, %YouTube.Channel{} = channel) do
