@@ -115,7 +115,7 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
   defp fetch_video_metadata(youtube_playlist) do
     youtube_playlist.items
     |> Enum.map(fn playlist_item -> playlist_item.video end)
-    |> Enum.reject(fn youtube_video -> youtube_video.mime_type != nil end)
+    |> Enum.filter(fn youtube_video -> youtube_video.mime_type == nil end)
     |> YouTubeVideoMetadataManager.process_videos
   end
 

@@ -42,7 +42,6 @@ defmodule VidFeeder.YouTubeVideoMetadataWorker do
 
       {:error, error} ->
         Logger.debug("Error: #{error}")
-        nil
     end
   end
 end
