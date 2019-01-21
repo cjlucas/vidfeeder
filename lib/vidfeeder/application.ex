@@ -16,8 +16,9 @@ defmodule VidFeeder.Application do
       worker(VidFeeder.ImportFeedWorker, []),
       worker(VidFeeder.ImportFeedEnqueuer, []),
       {VidFeeder.SourceScheduler, []},
-      {VidFeeder.SourceProcessor, []}
-    ]
+      {VidFeeder.SourceProcessor, []},
+      {VidFeeder.YouTubeVideoMetadataManager, []}
+    ] ++ workers(50, VidFeeder.YouTubeVideoMetadataWorker, [])
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -30,5 +31,11 @@ defmodule VidFeeder.Application do
   def config_change(changed, _new, removed) do
     VidFeederWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp workers(times, module, opts) do
+    Enum.map(1..times, fn i ->
+      Supervisor.child_spec({module, opts}, id: "#{module}_#{i}")
+    end)
   end
 end

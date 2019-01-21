@@ -1,5 +1,10 @@
 defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
-  alias VidFeeder.{Repo, YouTubePlaylist, YouTubeVideo}
+  alias VidFeeder.{
+    Repo,
+    YouTubePlaylist,
+    YouTubeVideo,
+    YouTubeVideoMetadataManager
+  }
 
   import Ecto.Query
 
@@ -55,7 +60,8 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
           Logger.debug("Etag mismatch")
 
           with {:ok, youtube_playlist} <- update_playlist_items(conn, youtube_playlist),
-               {:ok, youtube_playlist} <- update_playlist(youtube_playlist, playlist), do: youtube_playlist
+               {:ok, youtube_playlist} <- update_playlist(youtube_playlist, playlist),
+               :ok <- fetch_video_metadata(youtube_playlist), do: youtube_playlist
 
         else
           Logger.debug("Etag is the same, won't parse further")
@@ -104,6 +110,13 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
       |> Repo.update!
 
     {:ok, youtube_playlist}
+  end
+
+  defp fetch_video_metadata(youtube_playlist) do
+    youtube_playlist.items
+    |> Enum.map(fn playlist_item -> playlist_item.video end)
+    |> Enum.reject(fn youtube_video -> youtube_video.mime_type != nil end)
+    |> YouTubeVideoMetadataManager.process_videos
   end
 
   defp create_or_update_videos_from_playlist_items(conn, playlist_items) do
