@@ -16,7 +16,8 @@ defmodule VidFeeder.Application do
       worker(VidFeeder.ImportFeedWorker, []),
       worker(VidFeeder.ImportFeedEnqueuer, []),
       {VidFeeder.SourceScheduler, []},
-      {VidFeeder.SourceProcessor, []}
+      {VidFeeder.SourceProcessor, []},
+      {VidFeeder.SourceEventManager, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
