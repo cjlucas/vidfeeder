@@ -13,16 +13,8 @@ defmodule VidFeeder.SourceImporter do
     YouTubeUserImporter
   }
 
-  @underlying_sources [
-    :youtube_user,
-    :youtube_channel,
-    :youtube_playlist
-  ]
-
   def run(source) do
-    source = Repo.preload(source, @underlying_sources)
-
-    case underlying_source(source) do
+    case Source.underlying_source(source, Repo) do
       %YouTubeUser{} = user ->
         YouTubeUserImporter.run(user)
 
@@ -37,11 +29,5 @@ defmodule VidFeeder.SourceImporter do
     |> Source.changeset(%{state: "processed", last_refreshed_at: DateTime.utc_now})
     |> Repo.update!
   end
-
-  defp underlying_source(source) do
-    @underlying_sources
-    |> Enum.map(&Map.get(source, &1))
-    |> Enum.reject(&is_nil/1)
-    |> List.first
-  end
 end
+

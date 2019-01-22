@@ -11,8 +11,8 @@ defmodule VidFeeder.SourceEventManager do
     Registry.start_link(keys: :duplicate, name: __MODULE__)
   end
 
-  def register(event_name, source) do
-    Registry.register(__MODULE__, {event_name, source.id}, nil)
+  def register(event_name, source_id) do
+    Registry.register(__MODULE__, {event_name, source_id}, nil)
   end
 
   def notify(event_name, source) do

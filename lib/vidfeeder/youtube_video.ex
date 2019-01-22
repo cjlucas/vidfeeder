@@ -8,6 +8,8 @@ defmodule VidFeeder.YouTubeVideo do
     field :title, :string
     field :description, :string
     field :duration, :integer
+    field :mime_type, :string
+    field :size, :integer
     field :published_at, :utc_datetime
 
     timestamps()
@@ -21,12 +23,13 @@ defmodule VidFeeder.YouTubeVideo do
     changeset(youtube_video, %{
       title: video.title,
       description: video.description,
-      duration: video.duration
+      duration: video.duration,
+      published_at: video.published_at
     })
   end
 
   def changeset(youtube_video, params \\ %{}) do
     youtube_video
-    |> cast(params, [:title, :description, :duration])
+    |> cast(params, [:title, :description, :duration, :mime_type, :size, :published_at])
   end
 end

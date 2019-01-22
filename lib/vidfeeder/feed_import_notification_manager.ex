@@ -1,6 +1,13 @@
 defmodule VidFeeder.FeedImportNotificationManager do
   use GenServer
 
+  alias VidFeeder.{
+    Repo,
+    Source,
+    FeedGenerator,
+    SourceEventManager
+  }
+
   ## Client
 
   def start_link(_opts) do
@@ -23,34 +30,35 @@ defmodule VidFeeder.FeedImportNotificationManager do
     {:ok, table}
   end
 
-  def handle_call({:notify_user, email, feed}, _from, table) do
+  def handle_call({:notify_user, email, source}, _from, table) do
     ret =
-      case feed.state do
+      case source.state do
         "imported" ->
-          notify(email, feed)
-          :ok
+          notify(email, source)
 
         _ ->
-          :dets.insert(table, {feed.id, email})
+          {:ok, _} = SourceEventManager.register(:source_processed, source.id)
+          :dets.insert(table, {source.id, email})
       end
 
     {:reply, ret, table}
   end
 
-  def handle_call({:import_complete, feed}, _from, table) do
-    emails = table |> :dets.lookup(feed.id) |> Enum.map(&elem(&1, 1))
+  def handle_info({:source_processed, source_id}, table) do
+    emails = table |> :dets.lookup(source_id) |> Enum.map(&elem(&1, 1))
 
     unless Enum.empty?(emails) do
-      feed = VidFeeder.Repo.get(VidFeeder.Feed, feed.id)
-      notify(emails, feed)
+      source = Repo.get(Source, source_id)
+      notify(emails, source)
 
-      :ok = :dets.delete(table, feed.id)
+      :ok = :dets.delete(table, source_id)
     end
 
-    {:reply, :ok, table}
+    {:noreply, table}
   end
 
-  defp notify(emails, feed) do
+  defp notify(emails, source) do
+    feed = FeedGenerator.generate(source)
     :ok = VidFeeder.FeedProcessedMailer.send(emails, feed)
   end
 end
