@@ -7,6 +7,7 @@ defmodule VidFeeder.YouTubePlaylist do
     field :playlist_id, :string
     field :etag, :string
 
+    has_one :source, VidFeeder.Source, foreign_key: :youtube_playlist_id
     has_many :items, VidFeeder.YouTubePlaylistItem, foreign_key: :playlist_id, on_replace: :delete
 
     timestamps()

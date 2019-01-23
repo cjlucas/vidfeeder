@@ -12,106 +12,121 @@ defmodule VidFeederWeb.API.FeedController do
     Feed,
     Repo,
     Source,
-    SourceImporter,
+    SourceScheduler,
+    SourceEventManager,
+    FeedGenerator,
     YouTubeUser,
     YouTubeChannel,
     YouTubePlaylist
   }
 
   def create(conn, params) do
-    try do
-      feed =
-        %Feed{}
-        |> Feed.create_changeset(params)
-        |> Repo.insert!
+    {underlying_source_changeset, get_existing} =
+      case {params["source"], params["source_type"]} do
+        {"youtube", "user"} ->
+          {
+            YouTubeUser.create_changeset(params["source_id"]),
+            fn -> Repo.get_by(YouTubeUser, username: params["source_id"]) end
+          }
 
-      ImportFeedWorker.import_feed(feed)
+        {"youtube", "channel"} ->
+          {
+            YouTubeChannel.create_changeset(params["source_id"]),
+            fn -> Repo.get_by(YouTubeChannel, channel_id: params["source_id"]) end
+          }
 
-      underlying_source_changeset =
-        case {params["source"], params["source_type"]} do
-          {"youtube", "user"} ->
-            YouTubeUser.create_changeset(params["source_id"])
-
-          {"youtube", "channel"} ->
-            YouTubeChannel.create_changeset(params["source_id"])
-
-          {"youtube", "playlist"} ->
-            YouTubePlaylist.create_changeset(params["source_id"])
-        end
-
-        if underlying_source_changeset != nil do
-          Repo.transaction(fn -> 
-            source =
-              underlying_source_changeset
-              |> Repo.insert!
-              |> Source.build
-              |> Map.put(:id, feed.id)
-              |> Repo.insert!
-          end)
+        {"youtube", "playlist"} ->
+          {
+            YouTubePlaylist.create_changeset(params["source_id"]),
+            fn -> Repo.get_by(YouTubePlaylist, playlist_id: params["source_id"]) end
+          }
       end
 
-      conn
-      |> put_location_header(feed)
-      |> send_resp(:created, "")
-    rescue
-      e in Ecto.ConstraintError ->
-        %{constraint: constraint} = e
+      if underlying_source_changeset != nil do
+        result =
+          Repo.transaction(fn ->
+            case Repo.insert(underlying_source_changeset) do
+              {:ok, underlying_source} ->
+                source = underlying_source |> Source.build |> Repo.insert!
+                SourceScheduler.process_source(source)
+                source
 
-        if constraint == "feeds_source_source_type_source_id_index" do
-          feed = Repo.get_by!(
-            Feed,
-            source: params["source"],
-            source_type: params["source_type"],
-            source_id: params["source_id"]
-          )
+              {:error, _} ->
+                nil
+            end
+          end)
 
-          conn
-          |> put_location_header(feed)
-          |> send_resp(:see_other, "")
-        else
-          raise e
+        case result do
+          {:error, _} ->
+            case get_existing.() do
+              nil ->
+                send_resp(conn, 500, "i dunno")
+
+              underlying_source ->
+                source = Repo.preload(underlying_source, :source).source
+
+                conn
+                |> put_location_header(source)
+                |> send_resp(:see_other, "")
+            end
+
+          {:ok, source} ->
+            conn
+            |> put_location_header(source)
+            |> send_resp(:created, "")
         end
     end
   end
 
   def show(conn, %{"id" => id}) do
-    case Repo.get(Feed, id) do
+    {:ok, _} = SourceEventManager.register(:source_processed, id)
+
+    case Repo.get(Source, id) do
       nil ->
         send_resp(conn, :not_found, "")
-      feed ->
-        feed = wait_for_feed_items(feed)
 
-        if feed_items_exist?(feed) do
-          render conn, "show.json", feed: feed
+      source ->
+        if source.state in ["initial", "processing"] do
+          case wait_for_processing(id) do
+            {:ok, source} ->
+              feed = FeedGenerator.generate(source)
+              render(conn, "show.json", feed: feed)
+            
+            {:error, :timeout} ->
+              feed = FeedGenerator.generate(source)
+
+              conn
+              |> put_status(:accepted)
+              |> render("show.json", feed: feed)
+          end
         else
-          conn
-          |> put_status(:accepted)
-          |> render("show.json", feed: feed)
+          feed = FeedGenerator.generate(source)
+          render(conn, "show.json", feed: feed)
         end
     end
   end
 
-  defp feed_items_exist?(feed) do
-    Repo.one(from fi in "feeds_items",
-             select: count(fi.item_id),
-             where: fi.feed_id == type(^feed.id, Ecto.UUID)) > 0
-  end
+  defp wait_for_processing(source_id), do: wait_for_processing(source_id, @long_poll_timeout)
+  defp wait_for_processing(source_id, timeout) do
+    start = System.monotonic_time(:millisecond)
 
-  defp wait_for_feed_items(feed), do: wait_for_feed_items(feed, @long_poll_retry_count)
-  defp wait_for_feed_items(feed, 0), do: feed
-  defp wait_for_feed_items(feed, n) do
-    if feed_items_exist?(feed) do
-      feed
-    else
-      Process.sleep(@long_poll_retry_interval)
+    receive do
+      {:source_processed, ^source_id} ->
+        source = Repo.get(Source, source_id)
+        {:ok, source}
 
-      feed = Repo.get(Feed, feed.id)
-      wait_for_feed_items(feed, n - 1)
+      _ ->
+        now = System.monotonic_time(:millisecond)
+        wait_for_processing(source_id, now - start)
+
+    after
+      timeout ->
+        {:error, :timeout}
     end
   end
 
-  defp put_location_header(conn, feed) do
-    feed_url = VidFeederWeb.Router.Helpers.feed_url(conn, :show, feed.id)
+  defp put_location_header(conn, source) do
+    feed_url = VidFeederWeb.Router.Helpers.feed_url(conn, :show, source.id)
     put_resp_header(conn, "location", feed_url)
   end
 end
