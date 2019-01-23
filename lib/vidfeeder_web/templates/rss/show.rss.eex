@@ -10,7 +10,7 @@
     <% end %>
     <%= for item <- @feed.items do %>
     <item>
-      <guid><%= item.id %></guid>
+      <guid><%= item.guid %></guid>
       <pubDate><%= rss_pubdate(item.published_at) %></pubDate>
       <title><%= item.title %></title>
       <%= unless is_nil(item.image_url) do %>
@@ -19,7 +19,7 @@
       <itunes:duration><%= rss_duration(item.duration) %></itunes:duration>
       <description><%= item.description %></description>
       <itunes:summary><%= item.description %></itunes:summary>
-      <enclosure length='<%= item.size || 0 %>' type='<%= item.mime_type || "audio/mp3" %>' url='<%= rss_enclosure_url(item) %>'></enclosure>
+      <enclosure length='<%= item.size || 0 %>' type='<%= item.mime_type || "audio/mp3" %>' url='<%= item.url %>'></enclosure>
     </item>
     <% end %>
   </channel>
