@@ -14,12 +14,12 @@ defmodule VidFeeder.FeedImportNotificationManager do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def notify_user(email, feed) do
-    GenServer.call(__MODULE__, {:notify_user, email, feed})
+  def notify_user(email, source) do
+    GenServer.call(__MODULE__, {:notify_user, email, source})
   end
 
-  def import_complete(feed) do
-    GenServer.call(__MODULE__, {:import_complete, feed})
+  def import_complete(source) do
+    GenServer.call(__MODULE__, {:import_complete, source})
   end
 
   ## Server
