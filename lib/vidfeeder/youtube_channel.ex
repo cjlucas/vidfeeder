@@ -10,6 +10,7 @@ defmodule VidFeeder.YouTubeChannel do
     field :image_url, :string
 
     belongs_to :uploads_playlist, VidFeeder.YouTubePlaylist
+    has_one :source, VidFeeder.Source, foreign_key: :youtube_channel_id
     has_one :user, VidFeeder.YouTubeUser, foreign_key: :channel_id
 
     timestamps()

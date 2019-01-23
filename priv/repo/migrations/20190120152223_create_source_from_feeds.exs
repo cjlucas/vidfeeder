@@ -13,6 +13,15 @@ defmodule VidFeeder.Repo.Migrations.CreateSourceFromFeeds do
   }
 
   def up do
+    if function_exported?(Feed, :__schema__, 1) do
+      create_sources_from_feeds()
+    end
+  end
+
+  def down do
+  end
+
+  defp create_sources_from_feeds do
     Repo.transaction(fn ->
       (from f in Feed)
       |> Repo.stream
@@ -58,8 +67,5 @@ defmodule VidFeeder.Repo.Migrations.CreateSourceFromFeeds do
           end
       end)
     end)
-  end
-
-  def down do
   end
 end

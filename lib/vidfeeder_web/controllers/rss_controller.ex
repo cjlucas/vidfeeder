@@ -2,13 +2,13 @@ defmodule VidFeederWeb.RssController do
   use VidFeederWeb, :controller
 
   alias VidFeeder.{
-    Feed,
-    Repo
+    Source,
+    Repo,
+    FeedGenerator
   }
 
   def show(conn, params) do
-    IO.inspect params
-    feed = Repo.get(Feed, params["id"]) |> Repo.preload(:items)
+    feed = Repo.get(Source, params["id"]) |> FeedGenerator.generate
 
     render conn, "show.rss", feed: feed
   end
