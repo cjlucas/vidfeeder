@@ -11,9 +11,12 @@ defmodule VidFeeder.Application do
       supervisor(VidFeeder.Repo, []),
       {VidFeeder.FeedImportNotificationManager, []},
       supervisor(VidFeederWeb.Endpoint, []),
+      {Task.Supervisor, name: VidFeeder.ImportFeedWorker.TaskSupervisor},
+      worker(VidFeeder.ImportFeedStore, []),
+      worker(VidFeeder.ImportFeedWorker, []),
+      worker(VidFeeder.ImportFeedEnqueuer, []),
       {VidFeeder.SourceScheduler, []},
       {VidFeeder.SourceProcessor, []},
-      {VidFeeder.SourceEventManager, []},
       {VidFeeder.YouTubeVideoMetadataManager, []}
     ] ++ workers(50, VidFeeder.YouTubeVideoMetadataWorker, [])
 

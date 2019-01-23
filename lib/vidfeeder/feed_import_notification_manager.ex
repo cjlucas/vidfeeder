@@ -1,25 +1,18 @@
 defmodule VidFeeder.FeedImportNotificationManager do
   use GenServer
 
-  alias VidFeeder.{
-    Repo,
-    Source,
-    FeedGenerator,
-    SourceEventManager
-  }
-
   ## Client
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def notify_user(email, source) do
-    GenServer.call(__MODULE__, {:notify_user, email, source})
+  def notify_user(email, feed) do
+    GenServer.call(__MODULE__, {:notify_user, email, feed})
   end
 
-  def import_complete(source) do
-    GenServer.call(__MODULE__, {:import_complete, source})
+  def import_complete(feed) do
+    GenServer.call(__MODULE__, {:import_complete, feed})
   end
 
   ## Server
@@ -30,35 +23,34 @@ defmodule VidFeeder.FeedImportNotificationManager do
     {:ok, table}
   end
 
-  def handle_call({:notify_user, email, source}, _from, table) do
+  def handle_call({:notify_user, email, feed}, _from, table) do
     ret =
-      case source.state do
+      case feed.state do
         "imported" ->
-          notify(email, source)
+          notify(email, feed)
+          :ok
 
         _ ->
-          {:ok, _} = SourceEventManager.register(:source_processed, source.id)
-          :dets.insert(table, {source.id, email})
+          :dets.insert(table, {feed.id, email})
       end
 
     {:reply, ret, table}
   end
 
-  def handle_info({:source_processed, source_id}, table) do
-    emails = table |> :dets.lookup(source_id) |> Enum.map(&elem(&1, 1))
+  def handle_call({:import_complete, feed}, _from, table) do
+    emails = table |> :dets.lookup(feed.id) |> Enum.map(&elem(&1, 1))
 
     unless Enum.empty?(emails) do
-      source = Repo.get(Source, source_id)
-      notify(emails, source)
+      feed = VidFeeder.Repo.get(VidFeeder.Feed, feed.id)
+      notify(emails, feed)
 
-      :ok = :dets.delete(table, source_id)
+      :ok = :dets.delete(table, feed.id)
     end
 
-    {:noreply, table}
+    {:reply, :ok, table}
   end
 
-  defp notify(emails, source) do
-    feed = FeedGenerator.generate(source)
+  defp notify(emails, feed) do
     :ok = VidFeeder.FeedProcessedMailer.send(emails, feed)
   end
 end

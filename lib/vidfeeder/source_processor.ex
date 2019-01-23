@@ -1,10 +1,7 @@
 defmodule VidFeeder.SourceProcessor do
   use GenStage
 
-  alias VidFeeder.{
-    SourceImporter,
-    SourceEventManager
-  }
+  alias VidFeeder.SourceImporter
 
   require Logger
 
@@ -21,7 +18,6 @@ defmodule VidFeeder.SourceProcessor do
     Enum.each(sources, fn source ->
       Logger.info("Importing source: #{source.id}")
       SourceImporter.run(source)
-      SourceEventManager.notify(:source_processed, source)
     end)
 
     {:noreply, [], state}
