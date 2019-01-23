@@ -9,12 +9,6 @@ defmodule VidFeeder.Source do
 
   import Ecto.Changeset
 
-  @underlying_sources [
-    :youtube_user,
-    :youtube_channel,
-    :youtube_playlist
-  ]
-
   schema "sources" do
     field :state, :string
     field :last_refreshed_at, :utc_datetime
@@ -44,14 +38,5 @@ defmodule VidFeeder.Source do
   def changeset(source, params \\ %{}) do
     source
     |> cast(params, [:state, :last_refreshed_at])
-  end
-
-  def underlying_source(source, repo) do
-    source = repo.preload(source, @underlying_sources)
-    
-    @underlying_sources
-    |> Enum.map(&Map.get(source, &1))
-    |> Enum.reject(&is_nil/1)
-    |> List.first
   end
 end

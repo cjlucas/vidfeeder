@@ -1,6 +1,10 @@
 defmodule VidFeeder.Repo do
   use Ecto.Repo, otp_app: :vidfeeder
 
+  alias VidFeeder.{
+    Feed
+  }
+
   @doc """
   Dynamically loads the repository url from the
   DATABASE_URL environment variable.
