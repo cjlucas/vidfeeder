@@ -3,7 +3,8 @@ defmodule VidFeederWeb.API.UserView do
 
   @exposed_attributes [
     :id,
-    :email,
+    :identifier_type,
+    :identifier,
     :access_token,
     :inserted_at,
     :updated_at
