@@ -6,7 +6,6 @@ defmodule VidFeeder.User do
   @valid_identiifer_types ["email"]
 
   schema "users" do
-    field :email, :string
     field :identifier_type, :string
     field :identifier, :string
     field :password, :binary, virtual: true
