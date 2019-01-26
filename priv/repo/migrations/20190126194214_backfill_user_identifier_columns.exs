@@ -12,8 +12,7 @@ defmodule VidFeeder.Repo.Migrations.BackfillUserIdentifierColumns do
         %{email: email} = user
 
         user
-        |> User.changeset
-        |> Ecto.Changeset.force_change(:identifier, email)
+        |> User.changeset(%{identifier_type: "email", identifier: email})
         |> Repo.update!
       end)
     end)
