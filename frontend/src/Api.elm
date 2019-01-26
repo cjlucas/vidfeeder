@@ -1,16 +1,17 @@
-module Api exposing
-    ( Feed
-    , GetFeedResponse(..)
-    , Session
-    , Subscription
-    , User
-    , createEmailNotification
-    , createOrGetFeedTask
-    , createSessionRequest
-    , createSubscriptionRequest
-    , createUserRequest
-    , getCurrentSubscriptionsRequest
-    )
+module Api
+    exposing
+        ( Feed
+        , GetFeedResponse(..)
+        , Session
+        , Subscription
+        , User
+        , createEmailNotification
+        , createOrGetFeedTask
+        , createSessionRequest
+        , createSubscriptionRequest
+        , createUserRequest
+        , getCurrentSubscriptionsRequest
+        )
 
 import Dict
 import Http
@@ -30,7 +31,7 @@ type alias User =
 userDecoder =
     Decode.map2 User
         (at [ "data", "user", "id" ] string)
-        (at [ "data", "user", "email" ] string)
+        (at [ "data", "user", "identifier" ] string)
 
 
 type alias Session =
@@ -94,12 +95,13 @@ createUserRequest email password passwordConfirmation =
 
         body =
             Encode.object
-                [ ( "email", Encode.string email )
+                [ ( "identifier_type", Encode.string "email" )
+                , ( "identifier", Encode.string email )
                 , ( "password", Encode.string password )
                 , ( "password_confirmation", Encode.string passwordConfirmation )
                 ]
     in
-    Http.post url (Http.jsonBody body) userDecoder
+        Http.post url (Http.jsonBody body) userDecoder
 
 
 createSessionRequest : String -> String -> Http.Request Session
@@ -114,7 +116,7 @@ createSessionRequest email password =
                 , ( "password", Encode.string password )
                 ]
     in
-    Http.post url (Http.jsonBody body) sessionDecoder
+        Http.post url (Http.jsonBody body) sessionDecoder
 
 
 getCurrentSubscriptionsRequest : Session -> Http.Request (List Subscription)
@@ -126,17 +128,17 @@ getCurrentSubscriptionsRequest session =
         decoder =
             field "data" (list subscriptionDecoder)
     in
-    Http.request
-        { method = "GET"
-        , headers =
-            [ Http.header "Authorization" ("Bearer " ++ session.accessToken)
-            ]
-        , url = url
-        , body = Http.emptyBody
-        , expect = Http.expectJson decoder
-        , timeout = Nothing
-        , withCredentials = False
-        }
+        Http.request
+            { method = "GET"
+            , headers =
+                [ Http.header "Authorization" ("Bearer " ++ session.accessToken)
+                ]
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
 
 
 createSubscriptionRequest : Session -> String -> Http.Request Subscription
@@ -153,17 +155,17 @@ createSubscriptionRequest session feedId =
         decoder =
             field "data" subscriptionDecoder
     in
-    Http.request
-        { method = "POST"
-        , headers =
-            [ Http.header "Authorization" ("Bearer " ++ session.accessToken)
-            ]
-        , url = url
-        , body = Http.jsonBody body
-        , expect = Http.expectJson decoder
-        , timeout = Nothing
-        , withCredentials = False
-        }
+        Http.request
+            { method = "POST"
+            , headers =
+                [ Http.header "Authorization" ("Bearer " ++ session.accessToken)
+                ]
+            , url = url
+            , body = Http.jsonBody body
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
 
 
 type GetFeedResponse
@@ -196,15 +198,15 @@ getFeedRequest id =
                 code ->
                     Err ("Unknown code: " ++ String.fromInt code)
     in
-    Http.request
-        { method = "GET"
-        , headers = []
-        , url = url
-        , body = Http.emptyBody
-        , expect = Http.expectStringResponse handleResponse
-        , timeout = Nothing
-        , withCredentials = False
-        }
+        Http.request
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectStringResponse handleResponse
+            , timeout = Nothing
+            , withCredentials = False
+            }
 
 
 type CreateFeedResponse
@@ -252,12 +254,12 @@ createOrGetFeedTask params =
                                 |> Maybe.andThen Url.fromString
                                 |> Maybe.andThen (Url.Parser.parse (s "api" </> s "feeds" </> Url.Parser.string))
                     in
-                    case maybeFeedId of
-                        Just feedId ->
-                            Ok (FeedCreated feedId)
+                        case maybeFeedId of
+                            Just feedId ->
+                                Ok (FeedCreated feedId)
 
-                        Nothing ->
-                            Err "could not parse location header"
+                            Nothing ->
+                                Err "could not parse location header"
 
                 202 ->
                     case decodeString (dataDecoder importingFeedDecoder) response.body of
@@ -282,26 +284,26 @@ createOrGetFeedTask params =
                 }
                 |> Http.toTask
     in
-    createFeedTask
-        |> Task.andThen
-            (\feedResponse ->
-                case feedResponse of
-                    FeedCreated id ->
-                        getFeedRequest id
-                            |> Http.toTask
-                            |> Task.andThen
-                                (\maybeFeed ->
-                                    case maybeFeed of
-                                        Just feed ->
-                                            Task.succeed (GotFeed feed)
+        createFeedTask
+            |> Task.andThen
+                (\feedResponse ->
+                    case feedResponse of
+                        FeedCreated id ->
+                            getFeedRequest id
+                                |> Http.toTask
+                                |> Task.andThen
+                                    (\maybeFeed ->
+                                        case maybeFeed of
+                                            Just feed ->
+                                                Task.succeed (GotFeed feed)
 
-                                        Nothing ->
-                                            Task.succeed (FeedNotReady id)
-                                )
+                                            Nothing ->
+                                                Task.succeed (FeedNotReady id)
+                                    )
 
-                    FeedExists feed ->
-                        Task.succeed (GotFeed feed)
-            )
+                        FeedExists feed ->
+                            Task.succeed (GotFeed feed)
+                )
 
 
 type alias CreateEmailNotificationParams =
@@ -330,12 +332,12 @@ createEmailNotification params =
                 code ->
                     Err ("Unknown code" ++ String.fromInt code)
     in
-    Http.request
-        { method = "POST"
-        , headers = []
-        , url = url
-        , body = Http.jsonBody body
-        , expect = Http.expectStringResponse handleResponse
-        , timeout = Nothing
-        , withCredentials = False
-        }
+        Http.request
+            { method = "POST"
+            , headers = []
+            , url = url
+            , body = Http.jsonBody body
+            , expect = Http.expectStringResponse handleResponse
+            , timeout = Nothing
+            , withCredentials = False
+            }

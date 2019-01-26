@@ -11,7 +11,7 @@ defmodule VidFeederWeb.API.SessionController do
   def create(conn, params) do
     %{"email" => email, "password" => password} = params
 
-    case Repo.get_by(User, email: email) do
+    case Repo.get_by(User, identifier_type: "email", identifier: email) do
       nil ->
         resp(conn, :not_found, "")
       user ->
