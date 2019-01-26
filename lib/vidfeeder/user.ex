@@ -5,6 +5,8 @@ defmodule VidFeeder.User do
 
   schema "users" do
     field :email, :string
+    field :identifier_type, :string
+    field :identifier, :string
     field :password, :binary, virtual: true
     field :password_confirmation, :binary, virtual: true
     field :password_hash, :binary
@@ -35,9 +37,20 @@ defmodule VidFeeder.User do
   def changeset(user, params \\ %{}) do
     user
     |> cast(params, [:email, :password])
+    |> put_change(:identifier_type, "email")
+    |> put_email_identifier_if_necessary
   end
 
   ## Changeset Helpers
+  
+  defp put_email_identifier_if_necessary(changeset) do
+    case fetch_change(changeset, :email) do
+      {:ok, email} ->
+        put_change(changeset, :identifier, email)
+      :error ->
+        changeset
+    end
+  end
 
   def validate_password(changeset, opts \\ []) do
     required = Keyword.get(opts, :required, false)
