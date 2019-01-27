@@ -15,6 +15,8 @@ defmodule VidFeederWeb.API.SessionController do
       nil ->
         resp(conn, :not_found, "")
       user ->
+        user = Repo.preload(user, :login_credentials)
+
         if User.password_matches?(user, password) do
           render conn, "show.json", user: user
         else
