@@ -13,6 +13,7 @@ defmodule VidFeeder.User do
     field :password_hash, :binary
     field :access_token, :binary
 
+    has_one :login_credentials, VidFeeder.LoginCredentials, on_replace: :update
     has_many :subscriptions, VidFeeder.Subscription
 
     timestamps()
@@ -31,16 +32,28 @@ defmodule VidFeeder.User do
     user
     |> changeset(params)
     |> validate_password(required: true)
-    |> put_hashed_password
     |> generate_access_token
   end
   
   def changeset(user, params \\ %{}) do
+    params = prepare_params(params)
+
     user
     |> cast(params, [:identifier_type, :identifier, :password])
+    |> cast_assoc(:login_credentials)
+    |> put_hashed_password_if_necessary
     |> validate_inclusion(:identifier_type, @valid_identiifer_types)
     |> validate_required([:identifier_type, :identifier])
     |> unique_constraint(:identifier, name: :users_identifier_identifier_type_index)
+  end
+
+  defp prepare_params(params) do
+    case params["password"] do
+      nil ->
+        params
+      password ->
+        Map.put(params, "login_credentials", %{"password" => password})
+    end
   end
 
   ## Changeset Helpers
@@ -50,9 +63,14 @@ defmodule VidFeeder.User do
     validate_confirmation(changeset, :password, message: "does not match password", required: required)
   end
 
-  def put_hashed_password(changeset) do
-    password_hash = Comeonin.Argon2.add_hash(changeset.changes[:password])
-    change(changeset, password_hash)
+  def put_hashed_password_if_necessary(changeset) do
+    case fetch_change(changeset, :password) do
+      {:ok, password} ->
+        password_hash = Comeonin.Argon2.add_hash(password)
+        change(changeset, password_hash)
+      :error ->
+        changeset
+    end
   end
 
   def generate_access_token(changeset) do
