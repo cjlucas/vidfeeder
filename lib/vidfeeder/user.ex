@@ -20,7 +20,7 @@ defmodule VidFeeder.User do
   end
 
   def password_matches?(user, password) do
-    case Comeonin.Argon2.check_pass(user, password) do
+    case Comeonin.Argon2.check_pass(user.login_credentials, password) do
       {:ok, _}    -> true
       {:error, _} -> false
     end
@@ -41,7 +41,6 @@ defmodule VidFeeder.User do
     user
     |> cast(params, [:identifier_type, :identifier, :password])
     |> cast_assoc(:login_credentials)
-    |> put_hashed_password_if_necessary
     |> validate_inclusion(:identifier_type, @valid_identiifer_types)
     |> validate_required([:identifier_type, :identifier])
     |> unique_constraint(:identifier, name: :users_identifier_identifier_type_index)
@@ -61,16 +60,6 @@ defmodule VidFeeder.User do
   def validate_password(changeset, opts \\ []) do
     required = Keyword.get(opts, :required, false)
     validate_confirmation(changeset, :password, message: "does not match password", required: required)
-  end
-
-  def put_hashed_password_if_necessary(changeset) do
-    case fetch_change(changeset, :password) do
-      {:ok, password} ->
-        password_hash = Comeonin.Argon2.add_hash(password)
-        change(changeset, password_hash)
-      :error ->
-        changeset
-    end
   end
 
   def generate_access_token(changeset) do
