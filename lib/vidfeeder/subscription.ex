@@ -3,20 +3,24 @@ defmodule VidFeeder.Subscription do
 
   import Ecto.Changeset
 
-  @required_fields [:feed_id, :user_id]
-
   schema "subscriptions" do
     field :title, :string
 
     belongs_to :user, VidFeeder.User
-    belongs_to :feed, VidFeeder.Feed
+    belongs_to :source, VidFeeder.Source
 
     timestamps()
   end
 
+  def create_changeset(user, source) do
+    %__MODULE__{}
+    |> change
+    |> put_assoc(:user, user)
+    |> put_assoc(:source, source)
+  end
+
   def changeset(subscription, params \\ %{}) do
     subscription
-    |> cast(params, [:title] ++ @required_fields)
-    |> validate_required(@required_fields)
+    |> cast(params, [:title])
   end
 end

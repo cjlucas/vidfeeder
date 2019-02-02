@@ -3,7 +3,7 @@ defmodule VidFeeder.User do
 
   import Ecto.Changeset
 
-  @valid_identiifer_types ["email"]
+  @valid_identiifer_types ["email", "anonymous"]
 
   schema "users" do
     field :identifier_type, :string
@@ -31,7 +31,14 @@ defmodule VidFeeder.User do
   def create_changeset(user, params \\ %{}) do
     user
     |> changeset(params)
-    |> validate_password(required: true)
+    |> generate_access_token
+  end
+
+  def create_anonymous_user_changeset do
+    %__MODULE__{}
+    |> change
+    |> put_change(:identifier_type, "anonymous")
+    |> put_change(:identifier, Ecto.UUID.generate())
     |> generate_access_token
   end
   
@@ -65,5 +72,5 @@ defmodule VidFeeder.User do
   def generate_access_token(changeset) do
     access_token = 32 |> :crypto.strong_rand_bytes |> Base.encode16(case: :lower)
     put_change(changeset, :access_token, access_token)
-  end
+      end
 end
