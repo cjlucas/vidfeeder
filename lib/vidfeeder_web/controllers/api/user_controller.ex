@@ -1,6 +1,7 @@
 defmodule VidFeederWeb.API.UserController do
   use VidFeederWeb, :controller
 
+  plug VidFeederWeb.ValidateAuthToken when action in [:show]
   plug VidFeederWeb.LoadUser when action in [:show]
   plug VidFeederWeb.AuthorizeCurrentUser, [resource: "user"] when action in [:show]
 

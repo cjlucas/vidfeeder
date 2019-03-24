@@ -11,23 +11,14 @@ defmodule VidFeederWeb.LoadCurrentUser do
   end
 
   def call(conn, _opts) do
-    case bearer_token(conn) do
-      token when is_binary(token) ->
-        user = Repo.get_by(User, access_token: token)
+    case conn.private[:auth_token] do
+      %{user_id: user_id} ->
+        user = Repo.get(User, user_id)
         params = Map.put(conn.params, "current_user", user)
 
         %{conn | params: params}
       nil ->
         conn
-    end
-  end
-
-  defp bearer_token(conn) do
-    case get_req_header(conn, "authorization") do
-      [header | _] ->
-        header |> String.split(" ") |> List.last
-      _ ->
-        nil
     end
   end
 end

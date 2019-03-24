@@ -10,6 +10,7 @@ defmodule VidFeederWeb.Router do
   end
 
   pipeline :api do
+    plug VidFeederWeb.ValidateAuthToken
     plug VidFeederWeb.LoadCurrentUser
   end
 
