@@ -12,9 +12,9 @@ defmodule VidFeeder.Subscription do
     timestamps()
   end
 
-  def create_changeset(user, source) do
+  def create_changeset(user, source, params \\ %{}) do
     %__MODULE__{}
-    |> change
+    |> changeset(params)
     |> put_assoc(:user, user)
     |> put_assoc(:source, source)
   end
