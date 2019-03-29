@@ -3,7 +3,8 @@ defmodule VidFeeder.SourceProcessor do
 
   alias VidFeeder.{
     SourceImporter,
-    SourceEventManager
+    SourceEventManager,
+    SourceProcessorMonitor,
   }
 
   require Logger
@@ -20,8 +21,13 @@ defmodule VidFeeder.SourceProcessor do
   def handle_events(sources, _from, state) do
     Enum.each(sources, fn source ->
       Logger.info("Importing source: #{source.id}")
-      SourceImporter.run(source)
+
+      :ok = SourceProcessorMonitor.monitor(source)
+      :ok = SourceImporter.run(source)
+
       SourceEventManager.notify(:source_processed, source)
+
+      :ok = SourceProcessorMonitor.demonitor
     end)
 
     {:noreply, [], state}

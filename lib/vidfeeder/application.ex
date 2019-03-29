@@ -8,13 +8,14 @@ defmodule VidFeeder.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      supervisor(VidFeeder.Repo, []),
-      {VidFeeder.FeedImportNotificationManager, []},
-      supervisor(VidFeederWeb.Endpoint, []),
-      {VidFeeder.SourceScheduler, []},
-      {VidFeeder.SourceProcessor, []},
-      {VidFeeder.SourceEventManager, []},
-      {VidFeeder.YouTubeVideoMetadataManager, []}
+      VidFeeder.Repo,
+      VidFeeder.FeedImportNotificationManager,
+      VidFeederWeb.Endpoint,
+      VidFeeder.SourceProcessorMonitor,
+      VidFeeder.SourceScheduler,
+      TestSup,
+      VidFeeder.SourceEventManager,
+      VidFeeder.YouTubeVideoMetadataManager,
     ] ++ workers(50, VidFeeder.YouTubeVideoMetadataWorker, [])
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -34,5 +35,17 @@ defmodule VidFeeder.Application do
     Enum.map(1..times, fn i ->
       Supervisor.child_spec({module, opts}, id: "#{module}_#{i}")
     end)
+  end
+end
+
+defmodule TestSup do
+  use Supervisor
+
+  def start_link(_opts) do
+    children = [
+      VidFeeder.SourceProcessor
+    ]
+
+    Supervisor.start_link(children, strategy: :one_for_one, name: __MODULE__)
   end
 end

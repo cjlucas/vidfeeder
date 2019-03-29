@@ -41,7 +41,7 @@ defmodule VidFeeder.YouTubeVideoMetadataWorker do
         Logger.debug("Unknown response: #{inspect resp}")
 
       {:error, error} ->
-        Logger.debug("Error: #{error}")
+        Logger.debug("Error: #{inspect error}")
     end
   end
 end
