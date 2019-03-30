@@ -28,6 +28,8 @@ defmodule VidFeeder.SourceImporter do
     source
     |> Source.changeset(%{state: "processed", last_refreshed_at: DateTime.utc_now})
     |> Repo.update!
+
+    :ok
   end
 end
 
