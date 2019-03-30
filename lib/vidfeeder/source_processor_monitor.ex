@@ -31,17 +31,15 @@ defmodule VidFeeder.SourceProcessorMonitor do
 
   def init(:ok) do
     Process.flag(:trap_exit, true)
+
     {:ok, %{}}
   end
 
   def handle_call({:monitor, source}, {pid, _}, state) do
-    state = Map.put(state, pid, source.id)
-
     Logger.info("Monitoring SourceProcessor. Source ID: #{source.id}")
-
     Process.monitor(pid)
 
-    {:reply, :ok, state}
+    {:reply, :ok, Map.put(state, pid, source.id)}
   end
 
   def handle_call(:demonitor, {pid, _}, state) do
@@ -50,9 +48,9 @@ defmodule VidFeeder.SourceProcessorMonitor do
 
   def handle_info({:DOWN, _ref, :process, pid, reason}, state) do
     source_id = Map.get(state, pid)
+
     unless source_id == nil do
       Logger.debug("Received down message for pid. Last monitored source: #{source_id}. Reason: #{inspect reason}")
-
       mark_source_as_failed(source_id)
     end
 

@@ -4,8 +4,6 @@ defmodule VidFeeder.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec
-
     # Define workers and child supervisors to be supervised
     children = [
       VidFeeder.Repo,
@@ -13,7 +11,7 @@ defmodule VidFeeder.Application do
       VidFeederWeb.Endpoint,
       VidFeeder.SourceProcessorMonitor,
       VidFeeder.SourceScheduler,
-      TestSup,
+      VidFeeder.SourceProcessorSupervisor,
       VidFeeder.SourceEventManager,
       VidFeeder.YouTubeVideoMetadataManager,
     ] ++ workers(50, VidFeeder.YouTubeVideoMetadataWorker, [])
@@ -35,17 +33,5 @@ defmodule VidFeeder.Application do
     Enum.map(1..times, fn i ->
       Supervisor.child_spec({module, opts}, id: "#{module}_#{i}")
     end)
-  end
-end
-
-defmodule TestSup do
-  use Supervisor
-
-  def start_link(_opts) do
-    children = [
-      VidFeeder.SourceProcessor
-    ]
-
-    Supervisor.start_link(children, strategy: :one_for_one, name: __MODULE__)
   end
 end
