@@ -116,6 +116,7 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
     youtube_playlist.items
     |> Enum.map(fn playlist_item -> playlist_item.video end)
     |> Enum.filter(fn youtube_video -> youtube_video.mime_type == nil end)
+    |> Enum.filter(&YouTubeVideo.available_in_united_states?/1)
     |> YouTubeVideoMetadataManager.process_videos
   end
 
