@@ -1,5 +1,15 @@
 defmodule YouTube.Video do
-  defstruct [:id, :title, :description, :published_at, :duration, :image_url]
+  defstruct [
+    :id,
+    :title,
+    :description,
+    :published_at,
+    :duration,
+    :image_url,
+    :region_restricted,
+    :allowed_countries,
+    :blocked_countries
+  ]
 
   alias GoogleApi.YouTube.V3.Api
 
@@ -19,7 +29,10 @@ defmodule YouTube.Video do
         description: item.snippet.description,
         published_at: item.snippet.publishedAt,
         duration: Timex.Parse.Duration.Parser.parse!(item.contentDetails.duration).seconds,
-        image_url: image_url(item)
+        image_url: image_url(item),
+        region_restricted: region_restricted?(item.contentDetails),
+        allowed_countries: allowed_countries(item),
+        blocked_countries: blocked_countries(item)
       }
     end)
   end
@@ -28,6 +41,30 @@ defmodule YouTube.Video do
     case item.snippet.thumbnails.maxres do
       nil   -> nil
       image -> image.url
+    end
+  end
+
+  def region_restricted?(%{regionRestriction: regionRestriction}) when is_nil(regionRestriction), do: false
+  def region_restricted?(%{regionRestriction: regionRestriction}) do
+      !(is_nil(regionRestriction.allowed) && is_nil(regionRestriction.blocked))
+  end
+
+  def allowed_countries(%{contentDetails: contentDetails}) do
+    contentDetails
+    |> get(:regionRestriction, %{})
+    |> get(:allowed, [])
+  end
+
+  def blocked_countries(%{contentDetails: contentDetails}) do
+    contentDetails
+    |> get(:regionRestriction, %{})
+    |> get(:blocked, [])
+  end
+
+  defp get(map, key, nil_fallback) do
+    case Map.get(map, key) do
+      nil -> nil_fallback
+      value -> value
     end
   end
 end
