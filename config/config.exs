@@ -12,7 +12,9 @@ config :vidfeeder, VidFeeder.Repo,
   password: "pass",
   hostname: "localhost",
   migration_primary_key: [id: :uuid, type: :binary_id],
-  migration_timestamps: [type: :utc_datetime]
+  migration_timestamps: [type: :utc_datetime],
+  timeout: 60_000,
+  pool_timeout: 60_000
 
 
 # General application configuration
