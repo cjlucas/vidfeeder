@@ -28,3 +28,5 @@ erl_crash.dump
 
 # Ansible
 *.retry
+
+ansible-digital_ocean.cache

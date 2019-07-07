@@ -1,5 +1,11 @@
 - hosts: "{{ ansible_hosts }}"
   tasks:
+    - name: Add TimberIO apt GPG key
+      apt_key:
+        url: https://packagecloud.io/timberio/packages/gpgkey
+    - name: Add TimberIO package repository
+      apt_repository:
+        repo: deb https://packagecloud.io/timberio/packages/ubuntu/ bionic main
     - name: Create user
       user:
         state: present
@@ -31,6 +37,7 @@
         packages:
           - nginx
           - python3-boto3
+          - vector
     - name: Copy nginx.conf
       template:
         src: templates/nginx.conf.j2
