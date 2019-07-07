@@ -6,6 +6,33 @@
     - name: Add TimberIO package repository
       apt_repository:
         repo: deb https://packagecloud.io/timberio/packages/ubuntu/ bionic main
+    - name: Create vector group # systemd file included with Vector specifies that it be run as vector/vector, but the package does not create a vector group
+      group:
+        name: vector
+        state: present
+    - name: Install packages
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+      vars:
+        packages:
+          - nginx
+          - python3-boto3
+          - vector
+    - name: Copy Vector config
+      template:
+        src: templates/vector.toml.j2
+        dest: /etc/vector/vector.toml
+    - name: Create /opt/vector/bin
+      file:
+        name: /opt/vector/bin
+        recurse: true
+        state: directory
+    - name: Symlink /opt/vector/bin/vector
+      file:
+        src: /usr/bin/vector
+        dest: /opt/vector/bin/vector
+        state: link
     - name: Create user
       user:
         state: present
@@ -29,15 +56,6 @@
         src: templates/sudoers.j2
         dest: /etc/sudoers
         validate: '/usr/sbin/visudo -cf %s'
-    - name: Install packages
-      apt:
-        name: "{{ packages }}"
-        update_cache: yes
-      vars:
-        packages:
-          - nginx
-          - python3-boto3
-          - vector
     - name: Copy nginx.conf
       template:
         src: templates/nginx.conf.j2
@@ -45,5 +63,10 @@
     - name: Enable and restart nginx
       systemd:
         name: nginx
+        state: restarted # Never idempotent, always restarts
+        enabled: yes
+    - name: Enable and restart Vector
+      systemd:
+        name: vector
         state: restarted # Never idempotent, always restarts
         enabled: yes
