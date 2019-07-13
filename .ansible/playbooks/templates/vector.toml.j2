@@ -1,0 +1,26 @@
+data_dir = "/var/lib/vector/"
+
+[sources.tcp]
+    type = "tcp"
+    address = "127.0.0.1:13370"
+
+[transforms.json]
+    type = "json_parser"
+    inputs = ["tcp"]
+    field = "message"
+
+[sinks.elasticsearch]
+    type = "elasticsearch"
+    inputs = ["json"]
+    host = "{{ elasticsearch_url }}"
+    doc_type = "_doc"
+    index = "{{ tag_name }}-%F"
+
+[sinks.s3]
+    type = "aws_s3"
+    inputs = ["json"]
+    bucket = "net.cjlucas.vidfeeder.logs"
+    region = "us-east-1"
+    encoding = "ndjson"
+    key_prefix = "{{ tag_name }}/%F"
+    compression = "none"
