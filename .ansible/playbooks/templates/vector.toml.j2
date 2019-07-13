@@ -15,3 +15,12 @@ data_dir = "/var/lib/vector/"
     host = "{{ elasticsearch_url }}"
     doc_type = "_doc"
     index = "{{ tag_name }}-%F"
+
+[sinks.s3]
+    type = "aws_s3"
+    inputs = ["json"]
+    bucket = "net.cjlucas.vidfeeder.logs"
+    region = "us-east-1"
+    encoding = "ndjson"
+    key_prefix = "{{ tag_name }}/%F"
+    compression = "none"

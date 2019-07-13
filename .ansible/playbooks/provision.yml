@@ -19,29 +19,25 @@
           - nginx
           - python3-boto3
           - vector
-    - name: Copy Vector config
-      template:
-        src: templates/vector.toml.j2
-        dest: /etc/vector/vector.toml
-    - name: Create /opt/vector/bin
-      file:
-        name: /opt/vector/bin
-        recurse: true
-        state: directory
-    - name: Symlink /opt/vector/bin/vector
-      file:
-        src: /usr/bin/vector
-        dest: /opt/vector/bin/vector
-        state: link
     - name: Create user
       user:
         state: present
         name: vidfeeder
         shell: /bin/bash
-    - name: Create /home/vidfeeder/.ssh
+    - name: Create Directories
       file:
         state: directory
-        path: /home/vidfeeder/.ssh
+        recurse: true
+        path: "{{ item }}"
+      loop:
+        - /home/vidfeeder/.aws
+        - /home/vidfeeder/.ssh
+        - /opt/vector/bin
+    - name: Symlink /opt/vector/bin/vector
+      file:
+        src: /usr/bin/vector
+        dest: /opt/vector/bin/vector
+        state: link
     - name: Copy authorized_keys
       shell: cp /root/.ssh/authorized_keys /home/vidfeeder/.ssh
     - name: Change authorized_keys permissions
@@ -56,10 +52,23 @@
         src: templates/sudoers.j2
         dest: /etc/sudoers
         validate: '/usr/sbin/visudo -cf %s'
-    - name: Copy nginx.conf
+    - name: Copy Templates
       template:
-        src: templates/nginx.conf.j2
-        dest: /etc/nginx/nginx.conf
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop:
+          - {
+              src: 'templates/aws_credentials.j2',
+              dest: '/home/vidfeeder/.aws/credentails'
+            }
+          - {
+              src: 'templates/nginx.conf.j2',
+              dest: '/etc/nginx/nginx.conf'
+            }
+          - {
+              src: 'templates/vector.toml.j2',
+              dest: '/etc/vector/vector.toml'
+            }
     - name: Enable and restart nginx
       systemd:
         name: nginx
