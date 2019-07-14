@@ -23,9 +23,10 @@ alias VidFeeder.{
 user = 
   %User{}
   |> User.create_changeset(%{
-    email: "chris@cjl.io",
     password: "password",
-    password_confirmation: "password"
+    password_confirmation: "password",
+    identifier_type: "email",
+    identifier: "chris@cjl.io",
   })
   |> Repo.insert!
 
