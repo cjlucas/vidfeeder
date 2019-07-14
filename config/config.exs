@@ -32,7 +32,7 @@ config :vidfeeder, VidFeederWeb.Endpoint,
 
 # Configures Elixir's Logger
 config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
+  format: {VidFeeder.LogFormatter, :format},
   metadata: [:user_id]
 
 # Temp for testing
@@ -47,6 +47,10 @@ config :goth,
 
 config :sendgrid,
   api_key: System.get_env("SENDGRID_API_KEY")
+
+config :logger,
+  backends: [:console],
+  utc_log: true
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

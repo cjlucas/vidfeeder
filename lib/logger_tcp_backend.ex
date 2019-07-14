@@ -16,16 +16,16 @@ defmodule LoggerTcpBackend do
     {:ok, state}
   end
 
-  def handle_event({level, group_leader, {Logger, msg, ts, metadata}}, {fd, opts} = state) do
+  def handle_event({level, _group_leader, {Logger, msg, ts, metadata}}, {fd, opts} = state) do
     msg =
-      case Keyword.get(opts, :formatter) do
+      case Keyword.get(opts, :format) do
         {mod, fun} ->
           apply(mod, fun, [level, msg, ts, metadata])
         nil ->
           msg
       end
 
-    :gen_tcp.send(fd, [msg, 0x0a])
+    :gen_tcp.send(fd, msg)
 
     {:ok, state}
   end
