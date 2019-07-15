@@ -24,7 +24,7 @@ config :logger, level: :info
 
 
 config :logger,
-  backends: [{LoggerTcpBackend, :tcp}],
+  backends: [{LoggerTcpBackend, :tcp}]
 
 config :logger, :tcp,
   host: "localhost",
