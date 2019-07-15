@@ -22,6 +22,15 @@ config :vidfeeder, VidFeederWeb.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+
+config :logger,
+  backends: [{LoggerTcpBackend, :tcp}],
+
+config :logger, :tcp,
+  host: "localhost",
+  port: 13370,
+  format: {VidFeeder.LogFormatter, :format}
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
