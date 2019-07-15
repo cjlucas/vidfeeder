@@ -1,7 +1,6 @@
 defmodule VidFeeder.SourceProcessorMonitor do
   use GenServer
-  
-  require Logger
+  use Log
 
   alias VidFeeder.{Repo, Source}
 
@@ -36,7 +35,7 @@ defmodule VidFeeder.SourceProcessorMonitor do
   end
 
   def handle_call({:monitor, source}, {pid, _}, state) do
-    Logger.info("Monitoring SourceProcessor. Source ID: #{source.id}")
+    Log.info("Monitoring SourceProcessor", source_id: source.id)
     Process.monitor(pid)
 
     {:reply, :ok, Map.put(state, pid, source.id)}
@@ -50,7 +49,7 @@ defmodule VidFeeder.SourceProcessorMonitor do
     source_id = Map.get(state, pid)
 
     unless source_id == nil do
-      Logger.debug("Received down message for pid. Last monitored source: #{source_id}. Reason: #{inspect reason}")
+      Log.info("Received down message", source_id: source_id, pid: pid, reason: inspect(reason))
       mark_source_as_failed(source_id)
     end
 
@@ -58,7 +57,7 @@ defmodule VidFeeder.SourceProcessorMonitor do
   end
 
   def terminate(reason, state) do
-    Logger.info("Terminating due to reason #{inspect reason}. Marking currently processing sources as failed.")
+    Log.info("Received terminate. Marking currently processing sources as failed", reason: inspect(reason))
     Enum.each(state, fn {_pid, source_id} -> mark_source_as_failed(source_id) end)
   end
 

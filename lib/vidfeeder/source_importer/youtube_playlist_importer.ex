@@ -8,7 +8,7 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
 
   import Ecto.Query
 
-  require Logger
+  use Log
 
   defmodule YouTubePlaylistItemsDiffer do
     def diff(youtube_playlist_items, playlist_items) do
@@ -54,17 +54,18 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
 
     case YouTube.Playlist.info(conn, youtube_playlist.playlist_id) do
       nil ->
-        Logger.debug("YouTube playlist cannot be found: #{youtube_playlist.playlist_id}")
+        Log.debug("YouTube playlist cannot be found", playlist_id: youtube_playlist.playlist_id)
+
       playlist ->
         if youtube_playlist.etag != playlist.etag do
-          Logger.debug("Etag mismatch")
+          Log.info("Etag mismatch")
 
           with {:ok, youtube_playlist} <- update_playlist_items(conn, youtube_playlist),
                {:ok, youtube_playlist} <- update_playlist(youtube_playlist, playlist),
                :ok <- fetch_video_metadata(youtube_playlist), do: youtube_playlist
 
         else
-          Logger.debug("Etag is the same, won't parse further")
+          Log.info("Etag is the same, won't parse further")
 
           youtube_playlist
         end

@@ -1,12 +1,11 @@
 defmodule VidFeeder.YouTubeVideoMetadataWorker do
   use GenStage
+  use Log
 
   alias VidFeeder.{
     Repo,
     YouTubeVideo
   }
-
-  require Logger
 
   def start_link(_opts) do
     GenStage.start_link(__MODULE__, :ok)
@@ -38,10 +37,10 @@ defmodule VidFeeder.YouTubeVideoMetadataWorker do
         |> Repo.update!
 
       {:ok, resp} ->
-        Logger.debug("Unknown response: #{inspect resp}")
+        Log.debug("Unknown response", response: inspect(resp))
 
       {:error, error} ->
-        Logger.debug("Error: #{inspect error}")
+        Log.debug("Error", reason: inspect(error))
     end
   end
 end

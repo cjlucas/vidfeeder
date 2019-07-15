@@ -1,13 +1,12 @@
 defmodule VidFeeder.SourceProcessor do
   use GenStage
+  use Log
 
   alias VidFeeder.{
     SourceImporter,
     SourceEventManager,
     SourceProcessorMonitor,
   }
-
-  require Logger
 
   def start_link(_opts) do
     GenStage.start_link(__MODULE__, :ok)
@@ -20,14 +19,16 @@ defmodule VidFeeder.SourceProcessor do
 
   def handle_events(sources, _from, state) do
     Enum.each(sources, fn source ->
-      Logger.info("Importing source: #{source.id}")
+      Log.info("Importing source", source_id: source.id)
 
-      :ok = SourceProcessorMonitor.monitor(source)
-      :ok = SourceImporter.run(source)
+      Log.add_context([source_id: source.id], fn ->
+        :ok = SourceProcessorMonitor.monitor(source)
+        :ok = SourceImporter.run(source)
 
-      SourceEventManager.notify(:source_processed, source)
+        SourceEventManager.notify(:source_processed, source)
 
-      :ok = SourceProcessorMonitor.demonitor
+        :ok = SourceProcessorMonitor.demonitor
+      end)
     end)
 
     {:noreply, [], state}
