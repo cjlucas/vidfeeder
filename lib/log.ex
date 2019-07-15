@@ -22,17 +22,18 @@ defmodule Log do
     log_event(:warn, msg, event_metadata)
   end
 
+  def add_context(context_metadata) do
+    context =
+      Logger.metadata
+      |> Keyword.get(:context, [])
+      |> Keyword.merge(context_metadata)
+
+    Logger.metadata(context: context)
+  end
+
   def add_context(context_metadata, fun) do
     prev_context = Logger.metadata |> Keyword.get(:context)
-
-    cur_context =
-      if is_list(prev_context) do
-        Keyword.merge(prev_context, context_metadata)
-      else
-        context_metadata
-      end
-
-    Logger.metadata(context: cur_context)
+    add_context(context_metadata)
 
     try do
       fun.()
