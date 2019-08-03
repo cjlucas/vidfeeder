@@ -31,6 +31,10 @@ defmodule Log do
     Logger.metadata(context: context)
   end
 
+  def clear_context do
+    Logger.metadata(context: nil)
+  end
+
   def add_context(context_metadata, fun) do
     prev_context = Logger.metadata |> Keyword.get(:context)
     add_context(context_metadata)
