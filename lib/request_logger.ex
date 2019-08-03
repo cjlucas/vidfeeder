@@ -11,7 +11,7 @@ defmodule RequestLogger do
     Log.info("Request received",
       method: conn.method,
       path: conn.request_path,
-      remote_ip: format_ip(conn.remote_ip),
+      # remote_ip: format_ip(conn.remote_ip),
       query: conn.query_string,
       host: conn.host,
       headers: format_headers(conn.req_headers),
