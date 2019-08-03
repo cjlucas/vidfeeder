@@ -47,6 +47,6 @@ defmodule RequestLogger do
   end
 
   defp generate_request_id do
-    :crypto.strong_rand_bytes(32) |> Base.encode64(padding: false)
+    :crypto.strong_rand_bytes(16) |> Base.encode32(padding: false, case: :lower)
   end
 end
