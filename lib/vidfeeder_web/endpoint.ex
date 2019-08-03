@@ -20,7 +20,7 @@ defmodule VidFeederWeb.Endpoint do
     plug Phoenix.CodeReloader
   end
 
-  plug Plug.Logger
+  plug RequestLogger
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
