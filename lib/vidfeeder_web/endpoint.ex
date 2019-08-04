@@ -1,6 +1,8 @@
 defmodule VidFeederWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :vidfeeder
 
+  plug RemoteIp, proxies: ~w[127.0.0.0/8]
+
   socket "/socket", VidFeederWeb.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.

@@ -11,7 +11,7 @@ defmodule RequestLogger do
     Log.info("Request received",
       method: conn.method,
       path: conn.request_path,
-      # remote_ip: format_ip(conn.remote_ip),
+      remote_ip: format_ip(conn.remote_ip),
       query: conn.query_string,
       host: conn.host,
       headers: format_headers(conn.req_headers),
@@ -40,7 +40,9 @@ defmodule RequestLogger do
     end)
   end
 
-  defp format_ip({o1, o2, o3, o4}), do: "#{o1}.#{o2}.#{o3}.#{o4}"
+  defp format_ip(ip_addr) do
+    :inet.ntoa(ip_addr) |> :erlang.list_to_binary
+  end
 
   defp format_headers(headers) do
     Enum.into(headers, %{})
