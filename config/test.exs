@@ -9,9 +9,6 @@ config :vidfeeder, VidFeederWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
-config :goth,
-  disabled: true
-
 # Configure your database
 config :vidfeeder, VidFeeder.Repo,
   adapter: Ecto.Adapters.Postgres,
@@ -20,3 +17,7 @@ config :vidfeeder, VidFeeder.Repo,
   database: "vidfeeder_test",
   hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :logger, :console,
+  format: "\n$time $metadata[$level] $levelpad$message\n",
+  metadata: [:event, :context, :metadata, :pid]
