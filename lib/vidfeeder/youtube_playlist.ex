@@ -1,14 +1,15 @@
 defmodule VidFeeder.YouTubePlaylist do
   use VidFeeder.Schema
-  
+
   import Ecto.Changeset
 
   schema "youtube_playlists" do
-    field :playlist_id, :string
-    field :etag, :string
+    field(:playlist_id, :string)
+    field(:etag, :string)
 
-    has_one :source, VidFeeder.Source, foreign_key: :youtube_playlist_id
-    has_many :items, VidFeeder.YouTubePlaylistItem, foreign_key: :playlist_id, on_replace: :delete
+    has_one(:source, VidFeeder.Source, foreign_key: :youtube_playlist_id)
+
+    has_many(:items, VidFeeder.YouTubePlaylistItem, foreign_key: :playlist_id, on_replace: :delete)
 
     timestamps()
   end

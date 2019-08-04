@@ -24,7 +24,7 @@ defmodule Log do
 
   def add_context(context_metadata) do
     context =
-      Logger.metadata
+      Logger.metadata()
       |> Keyword.get(:context, [])
       |> Keyword.merge(context_metadata)
 
@@ -36,7 +36,7 @@ defmodule Log do
   end
 
   def add_context(context_metadata, fun) do
-    prev_context = Logger.metadata |> Keyword.get(:context)
+    prev_context = Logger.metadata() |> Keyword.get(:context)
     add_context(context_metadata)
 
     try do
@@ -65,7 +65,7 @@ defmodule Log do
 
         :warn ->
           Logger.warn(msg)
-        end
+      end
 
       Logger.metadata(event: nil)
     end

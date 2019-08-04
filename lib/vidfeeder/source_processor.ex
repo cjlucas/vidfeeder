@@ -5,7 +5,7 @@ defmodule VidFeeder.SourceProcessor do
   alias VidFeeder.{
     SourceImporter,
     SourceEventManager,
-    SourceProcessorMonitor,
+    SourceProcessorMonitor
   }
 
   def start_link(_opts) do
@@ -27,7 +27,7 @@ defmodule VidFeeder.SourceProcessor do
 
         SourceEventManager.notify(:source_processed, source)
 
-        :ok = SourceProcessorMonitor.demonitor
+        :ok = SourceProcessorMonitor.demonitor()
       end)
     end)
 

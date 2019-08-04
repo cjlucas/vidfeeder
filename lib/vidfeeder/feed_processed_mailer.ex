@@ -9,9 +9,9 @@ defmodule VidFeeder.FeedProcessedMailer do
       |> Email.put_phoenix_view(VidFeederWeb.EmailView)
       |> Email.put_phoenix_template("feed_processed.html", feed: feed)
 
-    email = 
+    email =
       recipients
-      |> List.wrap
+      |> List.wrap()
       |> Enum.reduce(email, fn recipient, email -> Email.add_to(email, recipient) end)
 
     SendGrid.Mail.send(email)

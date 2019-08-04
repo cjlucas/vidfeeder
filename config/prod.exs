@@ -22,7 +22,6 @@ config :vidfeeder, VidFeederWeb.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
-
 config :logger,
   backends: [{LoggerTcpBackend, :tcp}]
 

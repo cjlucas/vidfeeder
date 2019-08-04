@@ -9,8 +9,8 @@ defmodule VidFeeder.SourceImporter.YouTubeChannelImporter do
 
   def run(youtube_channel) do
     youtube_channel = Repo.preload(youtube_channel, :uploads_playlist)
-    conn = YouTube.Connection.new
-    
+    conn = YouTube.Connection.new()
+
     case YouTube.Channel.info(conn, youtube_channel.channel_id) do
       nil ->
         nil
@@ -19,12 +19,12 @@ defmodule VidFeeder.SourceImporter.YouTubeChannelImporter do
         playlist =
           channel
           |> find_or_create_uploads_playlist
-          |> YouTubePlaylistImporter.run
+          |> YouTubePlaylistImporter.run()
 
         youtube_channel
         |> YouTubeChannel.api_changeset(channel)
         |> Ecto.Changeset.put_assoc(:uploads_playlist, playlist)
-        |> Repo.update!
+        |> Repo.update!()
     end
   end
 
@@ -34,7 +34,7 @@ defmodule VidFeeder.SourceImporter.YouTubeChannelImporter do
     uploads_playlist =
       case Repo.get_by(YouTubePlaylist, playlist_id: uploads_playlist_id) do
         nil ->
-          YouTubePlaylist.create_changeset(uploads_playlist_id) |> Repo.insert!
+          YouTubePlaylist.create_changeset(uploads_playlist_id) |> Repo.insert!()
 
         playlist ->
           playlist

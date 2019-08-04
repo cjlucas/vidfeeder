@@ -5,16 +5,17 @@ defmodule VidFeeder.Application do
   # for more information on OTP Applications
   def start(_type, _args) do
     # Define workers and child supervisors to be supervised
-    children = [
-      VidFeeder.Repo,
-      VidFeeder.FeedImportNotificationManager,
-      VidFeederWeb.Endpoint,
-      VidFeeder.SourceProcessorMonitor,
-      VidFeeder.SourceScheduler,
-      VidFeeder.SourceProcessorSupervisor,
-      VidFeeder.SourceEventManager,
-      VidFeeder.YouTubeVideoMetadataManager,
-    ] ++ workers(50, VidFeeder.YouTubeVideoMetadataWorker, [])
+    children =
+      [
+        VidFeeder.Repo,
+        VidFeeder.FeedImportNotificationManager,
+        VidFeederWeb.Endpoint,
+        VidFeeder.SourceProcessorMonitor,
+        VidFeeder.SourceScheduler,
+        VidFeeder.SourceProcessorSupervisor,
+        VidFeeder.SourceEventManager,
+        VidFeeder.YouTubeVideoMetadataManager
+      ] ++ workers(50, VidFeeder.YouTubeVideoMetadataWorker, [])
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

@@ -16,7 +16,6 @@ config :vidfeeder, VidFeeder.Repo,
   timeout: 60_000,
   pool_timeout: 60_000
 
-
 # General application configuration
 config :vidfeeder,
   namespace: VidFeeder,
@@ -27,8 +26,7 @@ config :vidfeeder, VidFeederWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "BDAW+rSWbqwOeFfJB1y/+dJQho/KVoVMkdNgnG2htap2InoOAAGavmS+1qyD5+dS",
   render_errors: [view: VidFeederWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: VidFeeder.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: VidFeeder.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -54,4 +52,4 @@ config :logger,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

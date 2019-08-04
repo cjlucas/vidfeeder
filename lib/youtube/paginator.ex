@@ -1,5 +1,6 @@
 defmodule YouTube.Paginator do
   def paginate(fun), do: paginate(fun, nil, [])
+
   def paginate(fun, next_page_token, acc) do
     {:ok, resp} = fun.(next_page_token)
 
@@ -7,7 +8,8 @@ defmodule YouTube.Paginator do
 
     case resp.nextPageToken do
       nil ->
-        acc |> List.flatten |> Enum.reverse
+        acc |> List.flatten() |> Enum.reverse()
+
       token ->
         paginate(fun, token, acc)
     end

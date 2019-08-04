@@ -7,7 +7,7 @@ defmodule VidFeederWeb.API.SubscriptionView do
     :feed_id,
     :user_id,
     :inserted_at,
-    :updated_at,
+    :updated_at
   ]
 
   def render("show.json", %{subscription: subscription}) do

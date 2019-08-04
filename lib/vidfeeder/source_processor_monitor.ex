@@ -57,7 +57,10 @@ defmodule VidFeeder.SourceProcessorMonitor do
   end
 
   def terminate(reason, state) do
-    Log.info("Received terminate. Marking currently processing sources as failed", reason: inspect(reason))
+    Log.info("Received terminate. Marking currently processing sources as failed",
+      reason: inspect(reason)
+    )
+
     Enum.each(state, fn {_pid, source_id} -> mark_source_as_failed(source_id) end)
   end
 
@@ -65,6 +68,6 @@ defmodule VidFeeder.SourceProcessorMonitor do
     Source
     |> Repo.get(source_id)
     |> Source.changeset(%{state: "failed"})
-    |> Repo.update!
+    |> Repo.update!()
   end
 end

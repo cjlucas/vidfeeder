@@ -23,7 +23,7 @@ defmodule VidFeeder.SourceScheduler do
   end
 
   ## Server
-  
+
   def init(:ok) do
     {:ok, tref} = :timer.send_interval(60 * 1000, :timer_fired)
     {:producer, %State{timer_ref: tref}}
@@ -44,18 +44,22 @@ defmodule VidFeeder.SourceScheduler do
   end
 
   defp fulfill_demand(demand, state) when demand == 0, do: {:noreply, [], state}
+
   defp fulfill_demand(demand, state) do
-    sources = Repo.all(
-      from s in Source,
-      where: (s.last_refreshed_at <= datetime_add(^DateTime.utc_now, -10, "minute")
-        or is_nil(s.last_refreshed_at)) and s.state != "processing",
-      limit: ^demand
-    )
+    sources =
+      Repo.all(
+        from(s in Source,
+          where:
+            (s.last_refreshed_at <= datetime_add(^DateTime.utc_now(), -10, "minute") or
+               is_nil(s.last_refreshed_at)) and s.state != "processing",
+          limit: ^demand
+        )
+      )
 
     {:ok, sources} =
       Repo.transaction(fn ->
         Enum.map(sources, fn source ->
-          source |> Source.changeset(%{state: "processing"}) |> Repo.update!
+          source |> Source.changeset(%{state: "processing"}) |> Repo.update!()
         end)
       end)
 

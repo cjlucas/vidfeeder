@@ -5,7 +5,7 @@ defmodule VidFeederWeb.API.FeedView do
     :id,
     :title,
     :description,
-    :image_url,
+    :image_url
   ]
 
   def render("show.json", %{feed: feed}) do

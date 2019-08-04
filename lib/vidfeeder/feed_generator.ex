@@ -28,7 +28,7 @@ defmodule VidFeeder.FeedGenerator do
 
   defp do_generate(%YouTubeChannel{} = channel) do
     channel = Repo.preload(channel, :uploads_playlist)
-    
+
     %Feed{
       title: channel.title,
       description: channel.description,
@@ -47,6 +47,7 @@ defmodule VidFeeder.FeedGenerator do
   end
 
   defp generate_items(playlist) when is_nil(playlist), do: []
+
   defp generate_items(playlist) do
     playlist = Repo.preload(playlist, items: :video)
 

@@ -4,13 +4,13 @@ defmodule VidFeeder.YouTubePlaylistItem do
   import Ecto.Changeset
 
   schema "youtube_playlist_items" do
-    field :playlist_item_id, :string
-    field :position, :integer
-    field :published_at, :utc_datetime
+    field(:playlist_item_id, :string)
+    field(:position, :integer)
+    field(:published_at, :utc_datetime)
 
-    belongs_to :video, VidFeeder.YouTubeVideo, on_replace: :update
+    belongs_to(:video, VidFeeder.YouTubeVideo, on_replace: :update)
 
-    belongs_to :playlist, VidFeeder.YouTubePlaylist
+    belongs_to(:playlist, VidFeeder.YouTubePlaylist)
 
     timestamps()
   end

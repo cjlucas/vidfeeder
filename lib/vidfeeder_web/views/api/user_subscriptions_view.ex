@@ -1,13 +1,13 @@
 defmodule VidFeederWeb.API.UserSubscriptionsView do
   use VidFeederWeb, :view
-  
+
   @exposed_attributes [
     :id,
     :title,
     :feed_id,
     :user_id,
     :inserted_at,
-    :updated_at,
+    :updated_at
   ]
 
   def render("index.json", %{subscriptions: subscriptions}) do

@@ -4,10 +4,10 @@ defmodule VidFeeder.LoginCredentials do
   import Ecto.Changeset
 
   schema "login_credentials" do
-    field :password, :binary, virtual: true
-    field :password_hash, :binary
+    field(:password, :binary, virtual: true)
+    field(:password_hash, :binary)
 
-    belongs_to :user, VidFeeder.User
+    belongs_to(:user, VidFeeder.User)
 
     timestamps(type: :utc_datetime)
   end
@@ -17,12 +17,13 @@ defmodule VidFeeder.LoginCredentials do
     |> cast(params, [:password])
     |> put_hashed_password_if_necessary
   end
-  
+
   defp put_hashed_password_if_necessary(changeset) do
     case fetch_change(changeset, :password) do
       {:ok, password} ->
         password_hash = Comeonin.Argon2.add_hash(password)
         change(changeset, password_hash)
+
       :error ->
         changeset
     end

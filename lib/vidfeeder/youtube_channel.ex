@@ -4,14 +4,14 @@ defmodule VidFeeder.YouTubeChannel do
   import Ecto.Changeset
 
   schema "youtube_channels" do
-    field :channel_id, :string
-    field :title, :string
-    field :description, :string
-    field :image_url, :string
+    field(:channel_id, :string)
+    field(:title, :string)
+    field(:description, :string)
+    field(:image_url, :string)
 
-    belongs_to :uploads_playlist, VidFeeder.YouTubePlaylist
-    has_one :source, VidFeeder.Source, foreign_key: :youtube_channel_id
-    has_one :user, VidFeeder.YouTubeUser, foreign_key: :channel_id
+    belongs_to(:uploads_playlist, VidFeeder.YouTubePlaylist)
+    has_one(:source, VidFeeder.Source, foreign_key: :youtube_channel_id)
+    has_one(:user, VidFeeder.YouTubeUser, foreign_key: :channel_id)
 
     timestamps()
   end

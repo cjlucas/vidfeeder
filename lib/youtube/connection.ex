@@ -1,5 +1,4 @@
 defmodule YouTube.Connection do
-
   @scope "https://www.googleapis.com/auth/youtube"
 
   def new do

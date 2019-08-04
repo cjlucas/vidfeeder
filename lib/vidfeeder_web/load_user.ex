@@ -9,6 +9,7 @@ defmodule VidFeederWeb.LoadUser do
     case Map.get(params, "id") do
       nil ->
         conn
+
       id ->
         load_user(conn, id)
     end
@@ -22,6 +23,7 @@ defmodule VidFeederWeb.LoadUser do
         conn
         |> send_resp(:not_found, "")
         |> halt()
+
       user ->
         params = Map.put(params, "user", user)
         %{conn | params: params}

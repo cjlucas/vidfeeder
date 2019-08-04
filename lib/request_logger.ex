@@ -29,6 +29,7 @@ defmodule RequestLogger do
       status = Integer.to_string(conn.status)
 
       Log.clear_context()
+
       Log.info("Sent response",
         status: status,
         duration_us: diff,
@@ -41,7 +42,7 @@ defmodule RequestLogger do
   end
 
   defp format_ip(ip_addr) do
-    :inet.ntoa(ip_addr) |> :erlang.list_to_binary
+    :inet.ntoa(ip_addr) |> :erlang.list_to_binary()
   end
 
   defp format_headers(headers) do
