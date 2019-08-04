@@ -18,7 +18,13 @@ defmodule YouTube.Video do
     |> Enum.chunk_every(50)
     |> Enum.map(fn chunk ->
       video_ids = Enum.join(chunk, ",")
-      {:ok, resp} = Api.Videos.youtube_videos_list(conn, "id,contentDetails,snippet", id: video_ids, maxResults: 50)
+
+      {:ok, resp} =
+        Api.Videos.youtube_videos_list(conn, "id,contentDetails,snippet",
+          id: video_ids,
+          maxResults: 50
+        )
+
       resp
     end)
     |> Enum.flat_map(&Map.get(&1, :items))
@@ -39,14 +45,16 @@ defmodule YouTube.Video do
 
   def image_url(item) do
     case item.snippet.thumbnails.maxres do
-      nil   -> nil
+      nil -> nil
       image -> image.url
     end
   end
 
-  def region_restricted?(%{regionRestriction: regionRestriction}) when is_nil(regionRestriction), do: false
+  def region_restricted?(%{regionRestriction: regionRestriction}) when is_nil(regionRestriction),
+    do: false
+
   def region_restricted?(%{regionRestriction: regionRestriction}) do
-      !(is_nil(regionRestriction.allowed) && is_nil(regionRestriction.blocked))
+    !(is_nil(regionRestriction.allowed) && is_nil(regionRestriction.blocked))
   end
 
   def allowed_countries(%{contentDetails: contentDetails}) do

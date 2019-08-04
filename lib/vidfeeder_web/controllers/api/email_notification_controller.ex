@@ -12,6 +12,7 @@ defmodule VidFeederWeb.API.EmailNotificationController do
     case Repo.get(Source, source_id) do
       nil ->
         send_resp(conn, :not_found, "")
+
       source ->
         :ok = VidFeeder.FeedImportNotificationManager.notify_user(email, source)
         send_resp(conn, :ok, "")

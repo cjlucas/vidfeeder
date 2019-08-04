@@ -3,9 +3,9 @@ defmodule VidFeederWeb.API.FeedController do
 
   import Ecto.Query
 
-  @long_poll_timeout        10 * 1000
+  @long_poll_timeout 10 * 1000
   @long_poll_retry_interval 500
-  @long_poll_retry_count    div(@long_poll_timeout, @long_poll_retry_interval)
+  @long_poll_retry_count div(@long_poll_timeout, @long_poll_retry_interval)
 
   alias VidFeeder.{
     ImportFeedWorker,
@@ -42,39 +42,39 @@ defmodule VidFeederWeb.API.FeedController do
           }
       end
 
-      if underlying_source_changeset != nil do
-        result =
-          Repo.transaction(fn ->
-            case Repo.insert(underlying_source_changeset) do
-              {:ok, underlying_source} ->
-                source = underlying_source |> Source.build |> Repo.insert!
-                SourceScheduler.process_source(source)
-                source
+    if underlying_source_changeset != nil do
+      result =
+        Repo.transaction(fn ->
+          case Repo.insert(underlying_source_changeset) do
+            {:ok, underlying_source} ->
+              source = underlying_source |> Source.build() |> Repo.insert!()
+              SourceScheduler.process_source(source)
+              source
 
-              {:error, _} ->
-                nil
-            end
-          end)
+            {:error, _} ->
+              nil
+          end
+        end)
 
-        case result do
-          {:error, _} ->
-            case get_existing.() do
-              nil ->
-                send_resp(conn, 500, "i dunno")
+      case result do
+        {:error, _} ->
+          case get_existing.() do
+            nil ->
+              send_resp(conn, 500, "i dunno")
 
-              underlying_source ->
-                source = Repo.preload(underlying_source, :source).source
+            underlying_source ->
+              source = Repo.preload(underlying_source, :source).source
 
-                conn
-                |> put_location_header(source)
-                |> send_resp(:see_other, "")
-            end
+              conn
+              |> put_location_header(source)
+              |> send_resp(:see_other, "")
+          end
 
-          {:ok, source} ->
-            conn
-            |> put_location_header(source)
-            |> send_resp(:created, "")
-        end
+        {:ok, source} ->
+          conn
+          |> put_location_header(source)
+          |> send_resp(:created, "")
+      end
     end
   end
 
@@ -91,7 +91,7 @@ defmodule VidFeederWeb.API.FeedController do
             {:ok, source} ->
               feed = FeedGenerator.generate(source)
               render(conn, "show.json", feed: feed)
-            
+
             {:error, :timeout} ->
               feed = FeedGenerator.generate(source)
 
@@ -107,6 +107,7 @@ defmodule VidFeederWeb.API.FeedController do
   end
 
   defp wait_for_processing(source_id), do: wait_for_processing(source_id, @long_poll_timeout)
+
   defp wait_for_processing(source_id, timeout) do
     start = System.monotonic_time(:millisecond)
 
@@ -118,7 +119,6 @@ defmodule VidFeederWeb.API.FeedController do
       _ ->
         now = System.monotonic_time(:millisecond)
         wait_for_processing(source_id, now - start)
-
     after
       timeout ->
         {:error, :timeout}

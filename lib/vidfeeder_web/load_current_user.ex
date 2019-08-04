@@ -17,6 +17,7 @@ defmodule VidFeederWeb.LoadCurrentUser do
         params = Map.put(conn.params, "current_user", user)
 
         %{conn | params: params}
+
       nil ->
         conn
     end
@@ -25,7 +26,8 @@ defmodule VidFeederWeb.LoadCurrentUser do
   defp bearer_token(conn) do
     case get_req_header(conn, "authorization") do
       [header | _] ->
-        header |> String.split(" ") |> List.last
+        header |> String.split(" ") |> List.last()
+
       _ ->
         nil
     end

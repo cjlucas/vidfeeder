@@ -6,22 +6,22 @@ defmodule VidFeeder.User do
   @valid_identiifer_types ["email"]
 
   schema "users" do
-    field :identifier_type, :string
-    field :identifier, :string
-    field :password, :binary, virtual: true
-    field :password_confirmation, :binary, virtual: true
-    field :password_hash, :binary
-    field :access_token, :binary
+    field(:identifier_type, :string)
+    field(:identifier, :string)
+    field(:password, :binary, virtual: true)
+    field(:password_confirmation, :binary, virtual: true)
+    field(:password_hash, :binary)
+    field(:access_token, :binary)
 
-    has_one :login_credentials, VidFeeder.LoginCredentials, on_replace: :update
-    has_many :subscriptions, VidFeeder.Subscription
+    has_one(:login_credentials, VidFeeder.LoginCredentials, on_replace: :update)
+    has_many(:subscriptions, VidFeeder.Subscription)
 
     timestamps()
   end
 
   def password_matches?(user, password) do
     case Comeonin.Argon2.check_pass(user.login_credentials, password) do
-      {:ok, _}    -> true
+      {:ok, _} -> true
       {:error, _} -> false
     end
   end
@@ -34,7 +34,7 @@ defmodule VidFeeder.User do
     |> validate_password(required: true)
     |> generate_access_token
   end
-  
+
   def changeset(user, params \\ %{}) do
     params = prepare_params(params)
 
@@ -50,20 +50,25 @@ defmodule VidFeeder.User do
     case params["password"] do
       nil ->
         params
+
       password ->
         Map.put(params, "login_credentials", %{"password" => password})
     end
   end
 
   ## Changeset Helpers
-  
+
   def validate_password(changeset, opts \\ []) do
     required = Keyword.get(opts, :required, false)
-    validate_confirmation(changeset, :password, message: "does not match password", required: required)
+
+    validate_confirmation(changeset, :password,
+      message: "does not match password",
+      required: required
+    )
   end
 
   def generate_access_token(changeset) do
-    access_token = 32 |> :crypto.strong_rand_bytes |> Base.encode16(case: :lower)
+    access_token = 32 |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
     put_change(changeset, :access_token, access_token)
   end
 end

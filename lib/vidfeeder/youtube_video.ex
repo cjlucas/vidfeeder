@@ -4,16 +4,16 @@ defmodule VidFeeder.YouTubeVideo do
   import Ecto.Changeset
 
   schema "youtube_videos" do
-    field :video_id, :string
-    field :title, :string
-    field :description, :string
-    field :duration, :integer
-    field :mime_type, :string
-    field :size, :integer
-    field :published_at, :utc_datetime
-    field :region_restricted, :boolean
-    field :allowed_countries, {:array, :string}
-    field :blocked_countries, {:array, :string}
+    field(:video_id, :string)
+    field(:title, :string)
+    field(:description, :string)
+    field(:duration, :integer)
+    field(:mime_type, :string)
+    field(:size, :integer)
+    field(:published_at, :utc_datetime)
+    field(:region_restricted, :boolean)
+    field(:allowed_countries, {:array, :string})
+    field(:blocked_countries, {:array, :string})
 
     timestamps()
   end
@@ -36,7 +36,8 @@ defmodule VidFeeder.YouTubeVideo do
 
   def changeset(youtube_video, params \\ %{}) do
     youtube_video
-    |> cast(params,
+    |> cast(
+      params,
       [
         :title,
         :description,
@@ -51,7 +52,8 @@ defmodule VidFeeder.YouTubeVideo do
     )
   end
 
-  def available_in_united_states?(%{region_restricted: restricted}) when not(restricted), do: true
+  def available_in_united_states?(%{region_restricted: restricted}) when not restricted, do: true
+
   def available_in_united_states?(video) do
     "US" in video.allowed_countries || !("US" in video.blocked_countries)
   end

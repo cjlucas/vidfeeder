@@ -2,7 +2,7 @@ defmodule YouTube.Playlist do
   defstruct [:id, :etag, :title, :description, :image_url]
 
   alias GoogleApi.YouTube.V3.Api
-  
+
   def info(conn, id) do
     # Although contentDetails is not actually used, we need it to trigger
     # an etag change if an item has been removed from the playlist.
@@ -11,6 +11,7 @@ defmodule YouTube.Playlist do
     case resp.items do
       [] ->
         nil
+
       [playlist] ->
         %__MODULE__{
           id: id,
@@ -20,12 +21,11 @@ defmodule YouTube.Playlist do
           image_url: image_url(playlist)
         }
     end
-
   end
 
   def items(conn, id) do
     request(conn, id)
-    |> YouTube.Paginator.paginate
+    |> YouTube.Paginator.paginate()
     |> Enum.flat_map(fn resp -> resp.items end)
     |> Enum.map(fn item ->
       %YouTube.PlaylistItem{
@@ -44,7 +44,7 @@ defmodule YouTube.Playlist do
       conn
       |> items(id)
       |> Enum.map(&Map.get(&1, :video_id))
-      |> IO.inspect
+      |> IO.inspect()
 
     YouTube.Video.get(conn, video_ids)
   end
@@ -52,15 +52,15 @@ defmodule YouTube.Playlist do
   defp request(conn, id) do
     fn page_token ->
       Api.PlaylistItems.youtube_playlist_items_list(
-        conn, 
-        "id,contentDetails,snippet", 
+        conn,
+        "id,contentDetails,snippet",
         playlistId: id,
         pageToken: page_token,
         maxResults: 50
       )
     end
   end
-  
+
   defp image_url(playlist) do
     sizes = [:maxres, :high, :medium, :standard, :default]
 

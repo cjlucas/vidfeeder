@@ -1,7 +1,7 @@
 defmodule VidFeederWeb.API.SessionController do
   use VidFeederWeb, :controller
 
-  plug VidFeederWeb.LoadUser
+  plug(VidFeederWeb.LoadUser)
 
   alias VidFeeder.{
     Repo,
@@ -14,11 +14,12 @@ defmodule VidFeederWeb.API.SessionController do
     case Repo.get_by(User, identifier_type: "email", identifier: email) do
       nil ->
         resp(conn, :not_found, "")
+
       user ->
         user = Repo.preload(user, :login_credentials)
 
         if User.password_matches?(user, password) do
-          render conn, "show.json", user: user
+          render(conn, "show.json", user: user)
         else
           resp(conn, :unauthorized, "")
         end

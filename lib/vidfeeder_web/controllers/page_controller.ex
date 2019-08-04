@@ -5,7 +5,7 @@ defmodule VidFeederWeb.PageController do
     data =
       static_dir
       |> Path.join("index.html")
-      |> File.read!
+      |> File.read!()
 
     conn
     |> put_resp_content_type("text/html")

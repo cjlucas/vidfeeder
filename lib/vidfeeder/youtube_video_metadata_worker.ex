@@ -20,7 +20,7 @@ defmodule VidFeeder.YouTubeVideoMetadataWorker do
     Enum.each(videos, &fetch_video_metadata/1)
     {:noreply, [], state}
   end
-  
+
   defp fetch_video_metadata(video) do
     video_url = "https://www.youtube.com/watch?v=#{video.video_id}"
     url = "https://xzsc1ifa0m.execute-api.us-east-1.amazonaws.com/beta?url=#{video_url}"
@@ -34,7 +34,7 @@ defmodule VidFeeder.YouTubeVideoMetadataWorker do
           mime_type: mime_type,
           size: size
         })
-        |> Repo.update!
+        |> Repo.update!()
 
       {:ok, resp} ->
         Log.debug("Unknown response", response: inspect(resp))

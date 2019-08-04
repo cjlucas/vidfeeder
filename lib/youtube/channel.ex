@@ -11,6 +11,7 @@ defmodule YouTube.Channel do
     case resp.items do
       [] ->
         nil
+
       [channel] ->
         %__MODULE__{
           id: id,
@@ -22,7 +23,6 @@ defmodule YouTube.Channel do
           }
         }
     end
-
   end
 
   def uploads(conn, id) do
@@ -31,7 +31,7 @@ defmodule YouTube.Channel do
     playlist_id =
       resp.items
       |> Enum.map(fn channel -> channel.contentDetails.relatedPlaylists.uploads end)
-      |> List.first
+      |> List.first()
 
     Playlist.videos(conn, playlist_id)
   end

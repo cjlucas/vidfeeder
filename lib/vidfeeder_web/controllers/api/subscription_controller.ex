@@ -17,8 +17,8 @@ defmodule VidFeederWeb.API.SubscriptionController do
     subscription =
       %Subscription{}
       |> Subscription.changeset(params)
-      |> Repo.insert!
+      |> Repo.insert!()
 
-    render conn, "show.json", subscription: subscription
+    render(conn, "show.json", subscription: subscription)
   end
 end

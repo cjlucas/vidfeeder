@@ -21,6 +21,7 @@ defmodule LoggerTcpBackend do
       case Keyword.get(opts, :format) do
         {mod, fun} ->
           apply(mod, fun, [level, msg, ts, metadata])
+
         nil ->
           msg
       end
@@ -38,7 +39,7 @@ defmodule LoggerTcpBackend do
   end
 
   defp connect(opts) do
-    host = Keyword.fetch!(opts, :host) |> :erlang.binary_to_list
+    host = Keyword.fetch!(opts, :host) |> :erlang.binary_to_list()
     port = Keyword.fetch!(opts, :port)
 
     :gen_tcp.connect(host, port, [:binary, active: false])

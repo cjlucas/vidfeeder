@@ -16,12 +16,12 @@ defmodule VidFeeder.Source do
   ]
 
   schema "sources" do
-    field :state, :string
-    field :last_refreshed_at, :utc_datetime
+    field(:state, :string)
+    field(:last_refreshed_at, :utc_datetime)
 
-    belongs_to :youtube_playlist, VidFeeder.YouTubePlaylist
-    belongs_to :youtube_channel, VidFeeder.YouTubeChannel
-    belongs_to :youtube_user, VidFeeder.YouTubeUser
+    belongs_to(:youtube_playlist, VidFeeder.YouTubePlaylist)
+    belongs_to(:youtube_channel, VidFeeder.YouTubeChannel)
+    belongs_to(:youtube_user, VidFeeder.YouTubeUser)
 
     timestamps()
   end
@@ -48,10 +48,10 @@ defmodule VidFeeder.Source do
 
   def underlying_source(source, repo) do
     source = repo.preload(source, @underlying_sources)
-    
+
     @underlying_sources
     |> Enum.map(&Map.get(source, &1))
     |> Enum.reject(&is_nil/1)
-    |> List.first
+    |> List.first()
   end
 end

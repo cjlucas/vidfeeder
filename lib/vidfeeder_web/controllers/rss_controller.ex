@@ -8,8 +8,8 @@ defmodule VidFeederWeb.RssController do
   }
 
   def show(conn, params) do
-    feed = Repo.get(Source, params["id"]) |> FeedGenerator.generate
+    feed = Repo.get(Source, params["id"]) |> FeedGenerator.generate()
 
-    render conn, "show.rss", feed: feed
+    render(conn, "show.rss", feed: feed)
   end
 end

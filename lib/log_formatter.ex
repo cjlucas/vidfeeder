@@ -1,10 +1,10 @@
 defmodule VidFeeder.LogFormatter do
   defmodule LogPayload do
     defstruct message: nil,
-      timestamp: nil,
-      metadata: [],
-      context: [],
-      event: []
+              timestamp: nil,
+              metadata: [],
+              context: [],
+              event: []
 
     @log_metadata_keys [
       :application,
@@ -53,7 +53,7 @@ defmodule VidFeeder.LogFormatter do
             acc
           end
         end)
-        |> Poison.encode!
+        |> Poison.encode!()
 
       "#{json}\n"
     end
@@ -82,7 +82,9 @@ defmodule VidFeeder.LogFormatter do
     end
 
     defp convert_message_to_binary(%{message: message} = payload)
-      when is_binary(message), do: payload
+         when is_binary(message),
+         do: payload
+
     defp convert_message_to_binary(payload) do
       %{payload | message: :erlang.list_to_binary(payload.message)}
     end
@@ -127,6 +129,6 @@ defmodule VidFeeder.LogFormatter do
   end
 
   def format(level, message, timestamp, metadata) do
-    LogPayload.new(level, message, timestamp, metadata) |> LogPayload.encode!
+    LogPayload.new(level, message, timestamp, metadata) |> LogPayload.encode!()
   end
 end

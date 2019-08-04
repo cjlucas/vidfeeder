@@ -25,13 +25,13 @@ defmodule VidFeederWeb.ChannelCase do
     end
   end
 
-
   setup tags do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(VidFeeder.Repo)
+
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(VidFeeder.Repo, {:shared, self()})
     end
+
     :ok
   end
-
 end

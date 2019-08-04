@@ -6,11 +6,11 @@ defmodule YouTube.User do
 
   def info(conn, user_name) do
     {:ok, resp} = Api.Channels.youtube_channels_list(conn, "id", forUsername: user_name)
-    
+
     channel_id =
       resp.items
       |> Enum.map(fn channel -> channel.id end)
-      |> List.first
+      |> List.first()
 
     channel = Channel.info(conn, channel_id)
 
@@ -28,11 +28,11 @@ defmodule YouTube.User do
     channel_id =
       resp.items
       |> Enum.map(fn channel -> channel.id end)
-      |> List.first
+      |> List.first()
 
     Channel.uploads(conn, channel_id)
   end
-  
+
   defp image_url(user) do
     sizes = [:maxres, :high, :medium, :standard, :default]
 
