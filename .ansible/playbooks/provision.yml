@@ -10,6 +10,14 @@
       group:
         name: vector
         state: present
+    - name: Create users
+      user:
+        state: present
+        name: "{{ item }}"
+        shell: /bin/bash
+      loop:
+        - vidfeeder
+        - vector
     - name: Install packages
       apt:
         name: "{{ packages }}"
@@ -19,11 +27,6 @@
           - nginx
           - python3-boto3
           - vector
-    - name: Create user
-      user:
-        state: present
-        name: vidfeeder
-        shell: /bin/bash
     - name: Create Directories
       file:
         state: directory
@@ -31,13 +34,9 @@
         path: "{{ item }}"
       loop:
         - /home/vidfeeder/.aws
+        - /home/vector/.aws
         - /home/vidfeeder/.ssh
         - /opt/vector/bin
-    - name: Symlink /opt/vector/bin/vector
-      file:
-        src: /usr/bin/vector
-        dest: /opt/vector/bin/vector
-        state: link
     - name: Copy authorized_keys
       shell: cp /root/.ssh/authorized_keys /home/vidfeeder/.ssh
     - name: Change authorized_keys permissions
@@ -59,7 +58,11 @@
       loop:
           - {
               src: 'templates/aws_credentials.j2',
-              dest: '/home/vidfeeder/.aws/credentails'
+              dest: '/home/vidfeeder/.aws/credentials'
+            }
+          - {
+              src: 'templates/aws_credentials.j2',
+              dest: '/home/vector/.aws/credentials'
             }
           - {
               src: 'templates/nginx.conf.j2',
@@ -69,13 +72,16 @@
               src: 'templates/vector.toml.j2',
               dest: '/etc/vector/vector.toml'
             }
-    - name: Enable and restart nginx
+    - name: Symlink /opt/vector/bin/vector
+      file:
+        src: /usr/bin/vector
+        dest: /opt/vector/bin/vector
+        state: link
+    - name: Enable and restart services
       systemd:
-        name: nginx
+        name: "{{ item }}"
         state: restarted # Never idempotent, always restarts
         enabled: yes
-    - name: Enable and restart Vector
-      systemd:
-        name: vector
-        state: restarted # Never idempotent, always restarts
-        enabled: yes
+      loop:
+        - nginx
+        - vector
