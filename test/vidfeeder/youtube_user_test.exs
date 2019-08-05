@@ -1,5 +1,5 @@
 defmodule VidFeeder.YouTubeUserTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias VidFeeder.{
     Repo,
