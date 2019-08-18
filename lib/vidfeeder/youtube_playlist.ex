@@ -6,6 +6,9 @@ defmodule VidFeeder.YouTubePlaylist do
   schema "youtube_playlists" do
     field(:playlist_id, :string)
     field(:etag, :string)
+    field(:title, :string)
+    field(:description, :string)
+    field(:image_url, :string)
 
     has_one(:source, VidFeeder.Source, foreign_key: :youtube_playlist_id)
 
@@ -23,12 +26,15 @@ defmodule VidFeeder.YouTubePlaylist do
 
   def api_changeset(youtube_playlist, %YouTube.Playlist{} = playlist) do
     changeset(youtube_playlist, %{
+      title: playlist.title,
+      description: playlist.description,
+      image_url: playlist.image_url,
       etag: playlist.etag
     })
   end
 
   def changeset(playlist, params \\ %{}) do
     playlist
-    |> cast(params, [:etag])
+    |> cast(params, [:title, :description, :etag, :image_url])
   end
 end
