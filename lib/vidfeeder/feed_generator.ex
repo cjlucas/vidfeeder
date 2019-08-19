@@ -40,8 +40,8 @@ defmodule VidFeeder.FeedGenerator do
   defp do_generate(%YouTubePlaylist{} = playlist) do
     %Feed{
       title: playlist.title || playlist.playlist_id,
-      description: nil,
-      image_url: nil,
+      description: playlist.description,
+      image_url: playlist.image_url,
       items: generate_items(playlist)
     }
   end
