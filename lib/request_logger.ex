@@ -37,7 +37,7 @@ defmodule RequestLogger do
         request_id: request_id
       )
 
-      conn
+      Conn.put_resp_header(conn, "request-id", request_id)
     end)
   end
 
