@@ -58,7 +58,7 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
 
       playlist ->
         if youtube_playlist.etag != playlist.etag do
-          Log.info("Etag mismatch")
+          Log.info("Etag mismatch", old_etag: youtube_playlist.etag, new_tag: playlist.etag)
 
           with {:ok, youtube_playlist} <- update_playlist_items(conn, youtube_playlist),
                {:ok, youtube_playlist} <- update_playlist(youtube_playlist, playlist),

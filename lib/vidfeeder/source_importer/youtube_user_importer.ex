@@ -1,6 +1,4 @@
 defmodule VidFeeder.SourceImporter.YouTubeUserImporter do
-  use Log
-
   alias VidFeeder.{
     YouTubeChannel,
     YouTubeUser,
@@ -9,8 +7,10 @@ defmodule VidFeeder.SourceImporter.YouTubeUserImporter do
 
   alias VidFeeder.SourceImporter.YouTubeChannelImporter
 
+  use Log
+
   def run(youtube_user) do
-    Log.add_context([youtube_uesr: youtube_user.id], fn ->
+    Log.add_context([youtube_user: youtube_user.id], fn ->
       import_youtube_user(youtube_user)
     end)
   end
