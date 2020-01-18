@@ -14,6 +14,12 @@ defmodule VidFeeder.SourceImporter do
   }
 
   def run(source) do
+    Log.add_context([source_id: source.id], fn ->
+      import_source(source)
+    end)
+  end
+
+  defp import_source(source) do
     case Source.underlying_source(source, Repo) do
       %YouTubeUser{} = user ->
         YouTubeUserImporter.run(user)

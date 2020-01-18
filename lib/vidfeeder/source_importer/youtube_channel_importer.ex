@@ -7,7 +7,11 @@ defmodule VidFeeder.SourceImporter.YouTubeChannelImporter do
 
   alias VidFeeder.SourceImporter.YouTubePlaylistImporter
 
+  use Log
+
   def run(youtube_channel) do
+    Log.info("Importing channel", channel_id: youtube_channel.id)
+
     youtube_channel = Repo.preload(youtube_channel, :uploads_playlist)
     conn = YouTube.Connection.new()
 
