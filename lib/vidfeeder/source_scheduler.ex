@@ -50,7 +50,7 @@ defmodule VidFeeder.SourceScheduler do
       Repo.all(
         from(s in Source,
           where:
-            (s.last_refreshed_at <= datetime_add(^DateTime.utc_now(), -10, "minute") or
+            (s.last_refreshed_at <= datetime_add(^DateTime.utc_now(), -1, "hour") or
                is_nil(s.last_refreshed_at)) and s.state != "processing",
           limit: ^demand
         )
