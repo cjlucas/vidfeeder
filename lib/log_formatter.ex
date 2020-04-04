@@ -57,7 +57,7 @@ defmodule VidFeeder.LogFormatter do
           |> Poison.encode!()
         rescue
           Poison.EncodeError ->
-            encode!(%{payload | msg: inspect(payload.msg)})
+            encode!(%{payload | msg: inspect(payload.message)})
         end
 
       "#{json}\n"
