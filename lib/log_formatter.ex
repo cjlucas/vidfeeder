@@ -46,14 +46,19 @@ defmodule VidFeeder.LogFormatter do
       }
 
       json =
-        Enum.reduce(@metadata_keys, raw_payload, fn key, acc ->
-          if Enum.empty?(acc[key]) do
-            Map.drop(acc, [key])
-          else
-            acc
-          end
-        end)
-        |> Poison.encode!()
+        try do
+          Enum.reduce(@metadata_keys, raw_payload, fn key, acc ->
+            if Enum.empty?(acc[key]) do
+              Map.drop(acc, [key])
+            else
+              acc
+            end
+          end)
+          |> Poison.encode!()
+        rescue
+          Poison.EncodeError ->
+            encode!(%{payload | msg: inspect(payload.msg)})
+        end
 
       "#{json}\n"
     end
