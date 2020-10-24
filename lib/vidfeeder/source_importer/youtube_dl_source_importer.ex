@@ -10,7 +10,7 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
   def run(youtube_dl_source) do
     youtube_dl_source = Repo.preload(youtube_dl_source, :items)
 
-    item_ids =
+    items_by_youtube_dl_id =
       Enum.map(youtube_dl_source.items, fn item ->
         {item.youtube_dl_id, item}
       end)
@@ -27,7 +27,7 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
         duration: line["duration"]
       }
 
-      case Map.get(item_ids, attrs[:youtube_dl_id]) do
+      case Map.get(items_by_youtube_dl_id, attrs[:youtube_dl_id]) do
         nil ->
           attrs
           |> YoutubeDlItem.create_changeset()

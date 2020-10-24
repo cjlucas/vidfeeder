@@ -7,7 +7,7 @@ defmodule VidFeeder.YoutubeDlItem do
     field(:description, :string)
     field(:duration, :integer)
     field(:image_url, :string)
-    field(:published_at, :naive_datetime)
+    field(:published_at, :utc_datetime)
     field(:title, :string)
 
     belongs_to(:youtube_dl_source, VidFeeder.YoutubeDlSource)

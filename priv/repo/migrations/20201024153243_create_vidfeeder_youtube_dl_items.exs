@@ -8,7 +8,7 @@ defmodule VidFeeder.Repo.Migrations.CreateVidfeederYoutubeDlItems do
       add(:description, :text)
       add(:duration, :integer)
       add(:image_url, :string)
-      add(:published_at, :naive_datetime)
+      add(:published_at, :utc_datetime)
 
       add(:youtube_dl_source_id, references(:youtube_dl_sources), null: false)
 
