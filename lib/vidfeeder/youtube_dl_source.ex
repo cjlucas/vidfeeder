@@ -10,6 +10,23 @@ defmodule VidFeeder.YoutubeDlSource do
     timestamps()
   end
 
+  ## Helpers
+
+  def to_feed(youtube_dl_source) do
+    items =
+      youtube_dl_source
+      |> VidFeeder.Repo.preload(:items)
+      |> Map.get(:items)
+      |> Enum.map(&VidFeeder.YoutubeDlItem.to_feed_item/1)
+
+    %VidFeeder.Feed{
+      title: youtube_dl_source.url,
+      items: items
+    }
+  end
+
+  ## Changesets
+
   @doc false
   def create_changeset(url) do
     %__MODULE__{}

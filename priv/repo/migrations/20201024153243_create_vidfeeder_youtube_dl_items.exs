@@ -14,5 +14,7 @@ defmodule VidFeeder.Repo.Migrations.CreateVidfeederYoutubeDlItems do
 
       timestamps()
     end
+
+    create(unique_index(:youtube_dl_items, [:youtube_dl_source_id, :youtube_dl_id]))
   end
 end

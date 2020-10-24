@@ -21,6 +21,20 @@ defmodule VidFeeder.YoutubeDlItem do
     "https://www.youtube.com/watch?v=#{youtube_dl_item.youtube_dl_id}"
   end
 
+  def to_feed_item(item) do
+    video_url = to_url(item)
+    url = "https://xzsc1ifa0m.execute-api.us-east-1.amazonaws.com/beta?url=#{video_url}"
+
+    %VidFeeder.Item{
+      guid: item.youtube_dl_id,
+      title: item.title,
+      description: item.description,
+      duration: item.duration,
+      url: url,
+      published_at: item.inserted_at
+    }
+  end
+
   ## Changesets
 
   @doc false

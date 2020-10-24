@@ -8,18 +8,36 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
   import Ecto.Query
 
   def run(youtube_dl_source) do
+    youtube_dl_source = Repo.preload(youtube_dl_source, :items)
+
+    item_ids =
+      Enum.map(youtube_dl_source.items, fn item ->
+        {item.youtube_dl_id, item}
+      end)
+      |> Enum.into(%{})
+
     {json, _exit_code} = System.cmd("youtube-dl", ["-j", youtube_dl_source.url])
 
     Stream.each(string_io_line_stream(json), fn line ->
-      YoutubeDlItem.create_changeset(%{
+      attrs = %{
         youtube_dl_source_id: youtube_dl_source.id,
         youtube_dl_id: line["id"],
         title: line["title"],
         description: line["description"],
         duration: line["duration"]
-      })
-      |> IO.inspect()
-      |> Repo.insert!()
+      }
+
+      case Map.get(item_ids, attrs[:youtube_dl_id]) do
+        nil ->
+          attrs
+          |> YoutubeDlItem.create_changeset()
+          |> Repo.insert!()
+
+        item ->
+          item
+          |> YoutubeDlItem.changeset(attrs)
+          |> Repo.update!()
+      end
     end)
     |> Enum.to_list()
   end

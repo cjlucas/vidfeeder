@@ -49,28 +49,7 @@ defmodule VidFeeder.FeedGenerator do
   end
 
   defp do_generate(%YoutubeDlSource{} = youtube_dl_source) do
-    items =
-      youtube_dl_source
-      |> Repo.preload(:items)
-      |> Map.get(:items)
-      |> Enum.map(fn item ->
-        video_url = YoutubeDlItem.to_url(item)
-        url = "https://xzsc1ifa0m.execute-api.us-east-1.amazonaws.com/beta?url=#{video_url}"
-
-        %Item{
-          guid: item.youtube_dl_id,
-          title: item.title,
-          description: item.description,
-          duration: item.duration,
-          url: url,
-          published_at: item.inserted_at
-        }
-      end)
-
-    %Feed{
-      title: youtube_dl_source.url,
-      items: items
-    }
+    YoutubeDlSource.to_feed(youtube_dl_source)
   end
 
   defp generate_items(playlist) when is_nil(playlist), do: []
