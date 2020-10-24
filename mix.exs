@@ -52,7 +52,8 @@ defmodule VidFeeder.Mixfile do
       {:cipher, "~> 1.4"},
       {:sendgrid, "~> 2.0.0-rc"},
       {:gen_stage, "~> 0.14.0"},
-      {:remote_ip, "~> 0.1.4"}
+      {:remote_ip, "~> 0.1.4"},
+      {:temp, "~> 0.4.7"}
     ]
   end
 

@@ -2,7 +2,8 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
   alias VidFeeder.{
     Repo,
     YoutubeDlSource,
-    YoutubeDlItem
+    YoutubeDlItem,
+    YoutubeDlUpdater
   }
 
   import Ecto.Query
@@ -16,7 +17,7 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
       end)
       |> Enum.into(%{})
 
-    {json, _exit_code} = System.cmd("youtube-dl", ["-j", youtube_dl_source.url])
+    {json, _exit_code} = System.cmd(YoutubeDlUpdater.path(), ["-j", youtube_dl_source.url])
 
     Stream.each(string_io_line_stream(json), fn line ->
       attrs = %{

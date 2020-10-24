@@ -5,6 +5,7 @@ defmodule VidFeeder.YoutubeDlSource do
   schema "youtube_dl_sources" do
     field(:url, :string)
 
+    has_one(:source, VidFeeder.Source, foreign_key: :youtube_dl_source_id)
     has_many(:items, VidFeeder.YoutubeDlItem)
 
     timestamps()
@@ -32,6 +33,7 @@ defmodule VidFeeder.YoutubeDlSource do
     %__MODULE__{}
     |> change
     |> put_change(:url, url)
+    |> unique_constraint(:url)
   end
 
   @doc false
