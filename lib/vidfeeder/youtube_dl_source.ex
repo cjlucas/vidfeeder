@@ -1,9 +1,11 @@
-defmodule VidFeeder.VidFeeder.YoutubeDlSource do
+defmodule VidFeeder.YoutubeDlSource do
   use VidFeeder.Schema
   import Ecto.Changeset
 
-  schema "vidfeeder_youtube_dl_sources" do
+  schema "youtube_dl_sources" do
     field(:url, :string)
+
+    has_many(:items, VidFeeder.YoutubeDlItem)
 
     timestamps()
   end

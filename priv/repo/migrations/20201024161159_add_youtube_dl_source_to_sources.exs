@@ -3,7 +3,7 @@ defmodule VidFeeder.Repo.Migrations.AddYoutubeDlSourceToSources do
 
   def change do
     alter table(:sources) do
-      add(:youtube_dl_source_id, references(:vidfeeder_youtube_dl_sources))
+      add(:youtube_dl_source_id, references(:youtube_dl_sources))
     end
   end
 end

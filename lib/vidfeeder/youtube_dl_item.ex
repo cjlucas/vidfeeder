@@ -1,8 +1,8 @@
-defmodule VidFeeder.VidFeeder.YoutubeDlItem do
+defmodule VidFeeder.YoutubeDlItem do
   use VidFeeder.Schema
   import Ecto.Changeset
 
-  schema "vidfeeder_youtube_dl_items" do
+  schema "youtube_dl_items" do
     field(:youtube_dl_id, :string)
     field(:description, :string)
     field(:duration, :integer)
@@ -14,6 +14,14 @@ defmodule VidFeeder.VidFeeder.YoutubeDlItem do
 
     timestamps()
   end
+
+  ## Helpers
+
+  def to_url(youtube_dl_item) do
+    "https://www.youtube.com/watch?v=#{youtube_dl_item.youtube_dl_id}"
+  end
+
+  ## Changesets
 
   @doc false
   def create_changeset(attrs) do

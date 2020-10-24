@@ -4,10 +4,9 @@ defmodule VidFeeder.SourceImporter do
     Source,
     YouTubeUser,
     YouTubeChannel,
-    YouTubePlaylist
+    YouTubePlaylist,
+    YoutubeDlSource
   }
-
-  alias VidFeeder.VidFeeder.YoutubeDlSource
 
   alias VidFeeder.SourceImporter.{
     YouTubePlaylistImporter,

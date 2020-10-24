@@ -17,6 +17,7 @@ alias VidFeeder.{
   YouTubePlaylist,
   YouTubeChannel,
   YouTubeUser,
+  YoutubeDlSource,
   SourceImporter
 }
 
@@ -52,7 +53,7 @@ user =
 # SourceImporter.run(source3)
 
 source4 =
-  %VidFeeder.VidFeeder.YoutubeDlSource{
+  %YoutubeDlSource{
     url: "https://www.youtube.com/watch?v=IAkoWbUcquA"
   }
   |> Source.build()
@@ -61,8 +62,8 @@ source4 =
 SourceImporter.run(source4)
 
 source5 =
-  %VidFeeder.VidFeeder.YoutubeDlSource{
-    url: "https://www.youtube.com/channel/UCXKjhxsfFQUqlNVQzLVnpEA"
+  %YoutubeDlSource{
+    url: "https://www.youtube.com/channel/UCXCZOhRINu9QPEgi7NBe8Ug"
   }
   |> Source.build()
   |> Repo.insert!()
