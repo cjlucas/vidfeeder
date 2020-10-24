@@ -13,7 +13,8 @@ RUN wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && \
 
 RUN wget https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz && \
     gzip -d binary-for-linux-64-bit.gz && \
-    mv binary-for-linux-64-bit /usr/bin/elm
+    mv binary-for-linux-64-bit /usr/bin/elm && \
+    chmod +x /usr/bin/elm
 
 RUN pip3 install awscli
 
