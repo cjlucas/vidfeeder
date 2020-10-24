@@ -46,6 +46,8 @@ defmodule VidFeeder.YoutubeDlUpdater do
     Logger.debug("Got latest youtube-dl, writing to #{file_path}...")
 
     IO.binwrite(fd, data)
+    File.close(fd)
+
     File.chmod!(file_path, 0o755)
 
     file_path
