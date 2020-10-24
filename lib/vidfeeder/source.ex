@@ -12,7 +12,8 @@ defmodule VidFeeder.Source do
   @underlying_sources [
     :youtube_user,
     :youtube_channel,
-    :youtube_playlist
+    :youtube_playlist,
+    :youtube_dl_source
   ]
 
   schema "sources" do
@@ -22,6 +23,7 @@ defmodule VidFeeder.Source do
     belongs_to(:youtube_playlist, VidFeeder.YouTubePlaylist)
     belongs_to(:youtube_channel, VidFeeder.YouTubeChannel)
     belongs_to(:youtube_user, VidFeeder.YouTubeUser)
+    belongs_to(:youtube_dl_source, VidFeeder.VidFeeder.YoutubeDlSource)
 
     timestamps()
   end
@@ -38,6 +40,9 @@ defmodule VidFeeder.Source do
 
       %YouTubeUser{} = user ->
         %{source | youtube_user: user}
+
+      %VidFeeder.VidFeeder.YoutubeDlSource{} = youtube_dl_source ->
+        %{source | youtube_dl_source: youtube_dl_source}
     end
   end
 

@@ -40,6 +40,11 @@ defmodule VidFeederWeb.API.FeedController do
             YouTubePlaylist.create_changeset(params["source_id"]),
             fn -> Repo.get_by(YouTubePlaylist, playlist_id: params["source_id"]) end
           }
+
+        ["youtube_dl", "source"] ->
+          {
+            # ...
+          }
       end
 
     if underlying_source_changeset != nil do

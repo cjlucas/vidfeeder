@@ -42,7 +42,7 @@ defmodule VidFeeder.Mixfile do
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 1.0"},
       {:google_api_you_tube, "~> 0.1.0"},
-      {:goth, "~> 0.8.0"},
+      {:goth, "~> 1.2"},
       {:timex, "~> 3.4"},
       {:comeonin, "~> 4.0"},
       {:argon2_elixir, "~> 1.2"},
