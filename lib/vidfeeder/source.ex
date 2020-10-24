@@ -4,7 +4,8 @@ defmodule VidFeeder.Source do
   alias VidFeeder.{
     YouTubePlaylist,
     YouTubeChannel,
-    YouTubeUser
+    YouTubeUser,
+    YoutubeDlSource
   }
 
   import Ecto.Changeset
@@ -12,16 +13,18 @@ defmodule VidFeeder.Source do
   @underlying_sources [
     :youtube_user,
     :youtube_channel,
-    :youtube_playlist
+    :youtube_playlist,
+    :youtube_dl_source
   ]
 
   schema "sources" do
     field(:state, :string)
     field(:last_refreshed_at, :utc_datetime)
 
-    belongs_to(:youtube_playlist, VidFeeder.YouTubePlaylist)
-    belongs_to(:youtube_channel, VidFeeder.YouTubeChannel)
-    belongs_to(:youtube_user, VidFeeder.YouTubeUser)
+    belongs_to(:youtube_playlist, YouTubePlaylist)
+    belongs_to(:youtube_channel, YouTubeChannel)
+    belongs_to(:youtube_user, YouTubeUser)
+    belongs_to(:youtube_dl_source, YoutubeDlSource)
 
     timestamps()
   end
@@ -38,6 +41,9 @@ defmodule VidFeeder.Source do
 
       %YouTubeUser{} = user ->
         %{source | youtube_user: user}
+
+      %YoutubeDlSource{} = youtube_dl_source ->
+        %{source | youtube_dl_source: youtube_dl_source}
     end
   end
 

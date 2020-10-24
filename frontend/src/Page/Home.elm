@@ -13,7 +13,6 @@ import Html.Attributes
         , id
         , placeholder
         , src
-        , style
         , target
         , type_
         , value
@@ -90,6 +89,9 @@ createFeedTask source =
                 YouTube ->
                     "youtube"
 
+                YoutubeDL ->
+                    "youtube_dl"
+
         type_ =
             case source.sourceType of
                 Source.User ->
@@ -100,6 +102,9 @@ createFeedTask source =
 
                 Source.Playlist ->
                     "playlist"
+
+                Source.URL ->
+                    "url"
     in
     Api.createOrGetFeedTask
         { name = name

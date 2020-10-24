@@ -17,36 +17,35 @@ alias VidFeeder.{
   YouTubePlaylist,
   YouTubeChannel,
   YouTubeUser,
+  YoutubeDlSource,
   SourceImporter
 }
 
-user = 
+user =
   %User{}
   |> User.create_changeset(%{
     password: "password",
     password_confirmation: "password",
     identifier_type: "email",
-    identifier: "chris@cjl.io",
+    identifier: "chris@cjl.io"
   })
-  |> Repo.insert!
+  |> Repo.insert!()
 
 source1 =
-  %YouTubePlaylist{playlist_id: "PLyAkNLi4f70XsYSdNZxpWATH8Xy31Rh_v"}
-  |> Source.build
-  |> Repo.insert!
+  %YoutubeDlSource{
+    url: "https://www.youtube.com/watch?v=IAkoWbUcquA"
+  }
+  |> Source.build()
+  |> Repo.insert!()
 
+SourceImporter.run(source1)
 SourceImporter.run(source1)
 
 source2 =
-  %YouTubeChannel{channel_id: "UCMu3_s7WCRCJrbh37UKmJ-A"}
-  |> Source.build
-  |> Repo.insert!
+  %YoutubeDlSource{
+    url: "https://www.youtube.com/channel/UCXCZOhRINu9QPEgi7NBe8Ug"
+  }
+  |> Source.build()
+  |> Repo.insert!()
 
 SourceImporter.run(source2)
-
-source3 =
-  %YouTubeUser{username: "TrumpSC"}
-  |> Source.build
-  |> Repo.insert!
-
-SourceImporter.run(source3)
