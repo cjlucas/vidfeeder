@@ -6,7 +6,9 @@ defmodule VidFeeder.FeedGenerator do
     Source,
     YouTubeUser,
     YouTubeChannel,
-    YouTubePlaylist
+    YouTubePlaylist,
+    YoutubeDlSource,
+    YoutubeDlItem
   }
 
   def generate(source) do
@@ -44,6 +46,10 @@ defmodule VidFeeder.FeedGenerator do
       image_url: playlist.image_url,
       items: generate_items(playlist)
     }
+  end
+
+  defp do_generate(%YoutubeDlSource{} = youtube_dl_source) do
+    YoutubeDlSource.to_feed(youtube_dl_source)
   end
 
   defp generate_items(playlist) when is_nil(playlist), do: []

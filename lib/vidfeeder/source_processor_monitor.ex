@@ -47,9 +47,9 @@ defmodule VidFeeder.SourceProcessorMonitor do
 
   def handle_info({:DOWN, _ref, :process, pid, reason}, state) do
     source_id = Map.get(state, pid)
+    Log.info("Received down message", source_id: source_id, pid: pid, reason: inspect(reason))
 
     unless source_id == nil do
-      Log.info("Received down message", source_id: source_id, pid: pid, reason: inspect(reason))
       mark_source_as_failed(source_id)
     end
 

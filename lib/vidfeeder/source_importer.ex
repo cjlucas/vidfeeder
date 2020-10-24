@@ -4,13 +4,15 @@ defmodule VidFeeder.SourceImporter do
     Source,
     YouTubeUser,
     YouTubeChannel,
-    YouTubePlaylist
+    YouTubePlaylist,
+    YoutubeDlSource
   }
 
   alias VidFeeder.SourceImporter.{
     YouTubePlaylistImporter,
     YouTubeChannelImporter,
-    YouTubeUserImporter
+    YouTubeUserImporter,
+    YoutubeDlSourceImporter
   }
 
   def run(source) do
@@ -29,6 +31,9 @@ defmodule VidFeeder.SourceImporter do
 
       %YouTubePlaylist{} = playlist ->
         YouTubePlaylistImporter.run(playlist)
+
+      %YoutubeDlSource{} = source ->
+        YoutubeDlSourceImporter.run(source)
     end
 
     source

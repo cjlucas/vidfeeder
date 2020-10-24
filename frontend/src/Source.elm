@@ -1,19 +1,21 @@
-module Source exposing (Source, SourceName(..), SourceType(..), fromUrl, between)
+module Source exposing (Source, SourceName(..), SourceType(..), between, fromUrl)
 
-import Parser exposing (Parser, (|.), (|=), map, succeed)
+import Parser exposing ((|.), (|=), Parser, map, succeed)
 import Url exposing (Url)
-import Url.Parser exposing (query, s, (<?>))
+import Url.Parser exposing ((<?>), query, s)
 import Url.Parser.Query as Query
 
 
 type SourceName
     = YouTube
+    | YoutubeDL
 
 
 type SourceType
     = User
     | Channel
     | Playlist
+    | URL
 
 
 type alias Source =
@@ -27,6 +29,7 @@ validateLength : String -> Parser String
 validateLength s =
     if String.length s > 0 then
         succeed s
+
     else
         Parser.problem "its empty"
 
@@ -42,7 +45,7 @@ between before after =
     succeed identity
         |. skipThrough before
         |= (Parser.getChompedString (Parser.chompUntilEndOr after)
-                |> (Parser.andThen validateLength)
+                |> Parser.andThen validateLength
            )
 
 
@@ -58,13 +61,19 @@ parseYouTubePlaylist path url =
 
 fromUrl : Url -> Maybe Source
 fromUrl url =
-    oneOf
-        [ parseUrlPath (map (Source YouTube Channel) (between "/channel/" "/"))
-        , parseUrlPath (map (Source YouTube User) (between "/user/" "/"))
-        , parseYouTubePlaylist "watch"
-        , parseYouTubePlaylist "playlist"
-        ]
-        url
+    Just <| Source YoutubeDL URL <| Url.toString (Debug.log "url" url)
+
+
+
+--fromUrl : Url -> Maybe Source
+--fromUrl url =
+--oneOf
+--[ parseUrlPath (map (Source YouTube Channel) (between "/channel/" "/"))
+--, parseUrlPath (map (Source YouTube User) (between "/user/" "/"))
+--, parseYouTubePlaylist "watch"
+--, parseYouTubePlaylist "playlist"
+--]
+--url
 
 
 type alias Matcher =
