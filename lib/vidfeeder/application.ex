@@ -14,7 +14,8 @@ defmodule VidFeeder.Application do
         VidFeeder.SourceScheduler,
         VidFeeder.SourceProcessorSupervisor,
         VidFeeder.SourceEventManager,
-        VidFeeder.YouTubeVideoMetadataManager
+        VidFeeder.YouTubeVideoMetadataManager,
+        VidFeeder.YoutubeDlUpdater
       ] ++ workers(50, VidFeeder.YouTubeVideoMetadataWorker, [])
 
     # See https://hexdocs.pm/elixir/Supervisor.html

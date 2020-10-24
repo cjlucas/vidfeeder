@@ -17,11 +17,12 @@ defmodule VidFeederWeb.API.FeedController do
     FeedGenerator,
     YouTubeUser,
     YouTubeChannel,
-    YouTubePlaylist
+    YouTubePlaylist,
+    YoutubeDlSource
   }
 
   def create(conn, params) do
-    {underlying_source_changeset, get_existing} =
+    {underlying_source_changeset, get_existing_fn} =
       case {params["source"], params["source_type"]} do
         {"youtube", "user"} ->
           {
@@ -39,6 +40,12 @@ defmodule VidFeederWeb.API.FeedController do
           {
             YouTubePlaylist.create_changeset(params["source_id"]),
             fn -> Repo.get_by(YouTubePlaylist, playlist_id: params["source_id"]) end
+          }
+
+        {"youtube_dl", "url"} ->
+          {
+            YoutubeDlSource.create_changeset(params["source_id"]),
+            fn -> Repo.get_by(YoutubeDlSource, url: params["source_id"]) end
           }
       end
 
@@ -58,7 +65,7 @@ defmodule VidFeederWeb.API.FeedController do
 
       case result do
         {:error, _} ->
-          case get_existing.() do
+          case get_existing_fn.() do
             nil ->
               send_resp(conn, 500, "i dunno")
 
