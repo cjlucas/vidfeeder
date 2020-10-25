@@ -31,7 +31,7 @@ defmodule VidFeeder.YoutubeDlItem do
       description: item.description,
       duration: item.duration,
       url: url,
-      published_at: item.inserted_at
+      published_at: item.published_at
     }
   end
 
