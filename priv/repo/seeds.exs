@@ -39,7 +39,6 @@ source1 =
   |> Repo.insert!()
 
 SourceImporter.run(source1)
-SourceImporter.run(source1)
 
 source2 =
   %YoutubeDlSource{

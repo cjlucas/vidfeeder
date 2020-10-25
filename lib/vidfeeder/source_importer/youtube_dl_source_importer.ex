@@ -25,6 +25,7 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
         youtube_dl_id: line["id"],
         title: line["title"],
         description: line["description"],
+        published_at: Timex.parse!(line["upload_date"], "{YYYY}{0M}{D}"),
         duration: line["duration"]
       }
 
