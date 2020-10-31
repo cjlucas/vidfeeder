@@ -37,6 +37,11 @@ defmodule VidFeeder.YoutubeDlUpdater do
     {:noreply, path, @refresh_interval}
   end
 
+  def handle_info(msg, state) do
+    Logger.debug("Received unhandled message: #{inspect(msg)}")
+    {:noreply, state, @refresh_interval}
+  end
+
   defp update_youtube_dl_binary do
     Logger.debug("Fetching latest youtube-dl...")
     {:ok, fd, file_path} = Temp.open("youtube-dl")
