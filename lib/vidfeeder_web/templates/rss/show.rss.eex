@@ -19,7 +19,7 @@
       <itunes:duration><%= rss_duration(item.duration) %></itunes:duration>
       <description><%= item.description %></description>
       <itunes:summary><%= item.description %></itunes:summary>
-      <enclosure length='<%= item.size || 0 %>' type='<%= item.mime_type || "audio/mp3" %>' url='<%= item.url %>'></enclosure>
+      <enclosure length='<%= item.size || 0 %>' type='<%= item.mime_type || "video/mp4" %>' url='<%= item.url %>'></enclosure>
     </item>
     <% end %>
   </channel>
