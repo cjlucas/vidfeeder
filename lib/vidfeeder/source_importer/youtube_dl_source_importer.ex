@@ -8,6 +8,18 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
 
   import Ecto.Query
 
+  use Log
+
+  @proxies [
+    "atl.socks.ipvanish.com",
+    "bos.socks.ipvanish.com",
+    "chi.socks.ipvanish.com",
+    "chi.socks.ipvanish.com",
+    "den.socks.ipvanish.com",
+    "las.socks.ipvanish.com",
+    "lax.socks.ipvanish.com"
+  ]
+
   def run(youtube_dl_source) do
     youtube_dl_source = Repo.preload(youtube_dl_source, :items)
 
@@ -17,7 +29,23 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
       end)
       |> Enum.into(%{})
 
-    {json, _exit_code} = System.cmd(YoutubeDlUpdater.path(), ["-j", youtube_dl_source.url])
+    proxy_url =
+      "socks5://#{System.get_env("PROXY_USER")}:#{System.get_env("PROXY_PASS")}@#{
+        Enum.random(@proxies)
+      }"
+
+    youtube_dl_cmd = YoutubeDlUpdater.path()
+
+    youtube_dl_args = [
+      "-j",
+      "--proxy",
+      proxy_url,
+      youtube_dl_source.url
+    ]
+
+    Log.debug("Executing youtube-dl", cmd: youtube_dl_cmd, args: youtube_dl_args)
+
+    {json, _exit_code} = System.cmd(youtube_dl_cmd, youtube_dl_args)
 
     Stream.each(string_io_line_stream(json), fn line ->
       attrs = %{
