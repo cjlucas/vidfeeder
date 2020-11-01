@@ -43,7 +43,7 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
       youtube_dl_source.url
     ]
 
-    Log.debug("Executing youtube-dl", cmd: youtube_dl_cmd, args: youtube_dl_args)
+    Log.info("Executing youtube-dl", cmd: youtube_dl_cmd, args: youtube_dl_args)
 
     {json, _exit_code} = System.cmd(youtube_dl_cmd, youtube_dl_args)
 
