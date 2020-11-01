@@ -34,6 +34,14 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
       end)
       |> Enum.into(%{})
 
+    Temp.track!()
+    {:ok, temp_fd, temp_file_path} = Temp.open("youtube-dl-archive-file")
+
+    archive_file_contents = items_by_youtube_dl_id |> Map.keys() |> Enum.join("\n")
+
+    :ok = IO.puts(temp_fd, archive_file_contents)
+    File.close(temp_fd)
+
     proxy_url =
       "socks5://#{System.get_env("PROXY_USER")}:#{System.get_env("PROXY_PASS")}@#{
         Enum.random(@proxies)
@@ -45,6 +53,8 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
       "-j",
       "--proxy",
       proxy_url,
+      "--download-archive",
+      temp_file_path,
       youtube_dl_source.url
     ]
 
@@ -75,6 +85,8 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
       end
     end)
     |> Enum.to_list()
+
+    Temp.cleanup()
   end
 
   defp string_io_line_stream(output) do
