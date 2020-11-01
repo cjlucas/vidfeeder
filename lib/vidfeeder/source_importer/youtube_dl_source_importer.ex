@@ -11,13 +11,18 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
   use Log
 
   @proxies [
-    "atl.socks.ipvanish.com",
-    "bos.socks.ipvanish.com",
-    "chi.socks.ipvanish.com",
-    "chi.socks.ipvanish.com",
-    "den.socks.ipvanish.com",
-    "las.socks.ipvanish.com",
-    "lax.socks.ipvanish.com"
+    "nve.socks.ipvanish.com",
+    "tll.socks.ipvanish.com",
+    "sjo.socks.ipvanish.com",
+    "gig.socks.ipvanish.com",
+    "gru.socks.ipvanish.com",
+    "lis.socks.ipvanish.com",
+    "osl.socks.ipvanish.com",
+    "akl.socks.ipvanish.com",
+    "rix.socks.ipvanish.com",
+    "cph.socks.ipvanish.com",
+    "rkv.socks.ipvanish.com",
+    "sel.socks.ipvanish.com"
   ]
 
   def run(youtube_dl_source) do
