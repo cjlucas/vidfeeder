@@ -21,14 +21,13 @@ defmodule VidFeeder.YouTubePlaylistItem do
 
   def api_changeset(youtube_playlist_item, %YouTube.PlaylistItem{} = playlist_item) do
     changeset(youtube_playlist_item, %{
-      position: playlist_item.position,
-      video_id: playlist_item.video_id
+      position: playlist_item.position
     })
   end
 
   def changeset(youtube_playlist_item, params \\ %{}) do
     youtube_playlist_item
     |> cast(params, [:position])
-    |> put_assoc(:video, Map.take(params, [:video_id]))
+    |> foreign_key_constraint(:video_id)
   end
 end
