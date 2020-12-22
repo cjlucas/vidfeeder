@@ -36,7 +36,7 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
           |> Multi.run(
             :delete_orphaned_playlist_items,
             fn %{insert_playlist_items: youtube_playlist_items} ->
-              {:ok, delete_orphaned_playlist_items(youtube_playlist_items)}
+              {:ok, delete_orphaned_playlist_items(youtube_playlist, youtube_playlist_items)}
             end
           )
           |> Multi.update(
@@ -61,16 +61,40 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
 
   def insert_videos(videos) do
     Enum.map(videos, fn video ->
-      VidFeeder.YouTubeVideo.build(video.id)
-      |> VidFeeder.YouTubeVideo.api_changeset(video)
-      |> Repo.insert!(
-        on_conflict: :replace_all,
-        conflict_target: :video_id
-      )
+      IO.inspect(video, label: :video)
+
+      result =
+        VidFeeder.YouTubeVideo.build(video.id)
+        |> VidFeeder.YouTubeVideo.api_changeset(video)
+      |> Ecto.Changeset.put_change(:id, Ecto.UUID.generate())
+        |> Repo.insert(
+          # We need to upgrade ecto to get better on_conflict options.
+          # The ancient version we're using requires us to specify every single
+          # key/value pair we want explicitly. I'm too lazy for that, and we
+          # want to upgrade elixir/ecto anyways.
+          #
+          # Until then, we won't be truly "updating" these records.
+          on_conflict: [set: [title: video.title]],
+          conflict_target: :video_id
+        )
+        |> IO.inspect(label: :here)
+
+      case result do
+        {:ok, video} ->
+          Log.debug("inserted video! #{video.id}")
+          video
+
+        {:error, error} ->
+          Log.debug("failed to insert video: #{inspect(error)}")
+          nil
+      end
     end)
+    |> Enum.filter(fn video -> !is_nil(video) end)
   end
 
   def insert_playlist_items(youtube_playlist, playlist_items, videos) do
+    Log.debug("INSERTING PLAYLIST ITEMS")
+
     video_id_lut =
       Enum.reduce(videos, %{}, fn video, acc -> Map.put(acc, video.video_id, video.id) end)
 
@@ -83,12 +107,18 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
           raise "Received a playlist item with an unkown video id: #{playlist_item.video_id}"
         end
 
+        Repo.get_by(VidFeeder.YouTubeVideo, video_id: playlist_item.video_id)
+        |> IO.inspect(label: "da video")
+
+        IO.puts("but the uuid for the video is #{video_id}")
+
         result =
           VidFeeder.YouTubePlaylistItem.build(youtube_playlist, playlist_item.id)
           |> VidFeeder.YouTubePlaylistItem.api_changeset(playlist_item)
           |> Ecto.Changeset.put_change(:video_id, video_id)
+          |> IO.inspect(label: :changeset)
           |> Repo.insert(
-            on_conflict: [set: [position: playlist_item.position]],
+            on_conflict: [set: [position: playlist_item.position, video_id: video_id]],
             conflict_target: :playlist_item_id
           )
 
@@ -105,17 +135,19 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
       end)
   end
 
-  def delete_orphaned_playlist_items(youtube_playlist_items) do
+  def delete_orphaned_playlist_items(youtube_playlist, youtube_playlist_items) do
     playlist_item_ids = Enum.map(youtube_playlist_items, &Map.get(&1, :playlist_item_id))
 
     from(i in VidFeeder.YouTubePlaylistItem,
-      where: i.playlist_item_id not in ^playlist_item_ids
+      where: i.playlist_id == ^youtube_playlist.id and
+        i.playlist_item_id not in ^playlist_item_ids
     )
     |> Repo.delete_all()
   end
 
   defp fetch_video_metadata(youtube_playlist) do
     youtube_playlist.items
+    |> Repo.preload(:video)
     |> Enum.map(fn playlist_item -> playlist_item.video end)
     |> Enum.filter(fn youtube_video -> youtube_video.mime_type == nil end)
     |> Enum.filter(&YouTubeVideo.available_in_united_states?/1)

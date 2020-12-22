@@ -3,6 +3,8 @@ defmodule VidFeeder.YouTubeVideo do
 
   import Ecto.Changeset
 
+  @primary_key {:id, :binary_id, autogenerate: false, read_after_writes: true}
+
   schema "youtube_videos" do
     field(:video_id, :string)
     field(:title, :string)
