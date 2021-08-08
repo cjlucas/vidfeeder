@@ -66,7 +66,7 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
       result =
         VidFeeder.YouTubeVideo.build(video.id)
         |> VidFeeder.YouTubeVideo.api_changeset(video)
-      |> Ecto.Changeset.put_change(:id, Ecto.UUID.generate())
+        |> Ecto.Changeset.put_change(:id, Ecto.UUID.generate())
         |> Repo.insert(
           # We need to upgrade ecto to get better on_conflict options.
           # The ancient version we're using requires us to specify every single
@@ -139,8 +139,9 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
     playlist_item_ids = Enum.map(youtube_playlist_items, &Map.get(&1, :playlist_item_id))
 
     from(i in VidFeeder.YouTubePlaylistItem,
-      where: i.playlist_id == ^youtube_playlist.id and
-        i.playlist_item_id not in ^playlist_item_ids
+      where:
+        i.playlist_id == ^youtube_playlist.id and
+          i.playlist_item_id not in ^playlist_item_ids
     )
     |> Repo.delete_all()
   end
