@@ -59,21 +59,16 @@ parseYouTubePlaylist path url =
         |> Maybe.map (Source YouTube Playlist)
 
 
+
 fromUrl : Url -> Maybe Source
 fromUrl url =
-    Just <| Source YoutubeDL URL <| Url.toString (Debug.log "url" url)
-
-
-
---fromUrl : Url -> Maybe Source
---fromUrl url =
---oneOf
---[ parseUrlPath (map (Source YouTube Channel) (between "/channel/" "/"))
---, parseUrlPath (map (Source YouTube User) (between "/user/" "/"))
---, parseYouTubePlaylist "watch"
---, parseYouTubePlaylist "playlist"
---]
---url
+    oneOf
+        [ parseUrlPath (map (Source YouTube Channel) (between "/channel/" "/"))
+        , parseUrlPath (map (Source YouTube User) (between "/user/" "/"))
+        , parseYouTubePlaylist "watch"
+        , parseYouTubePlaylist "playlist"
+        ]
+        url
 
 
 type alias Matcher =

@@ -6,48 +6,11 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
     YouTubeVideoMetadataManager
   }
 
+  alias Ecto.Multi
+
   import Ecto.Query
 
   use Log
-
-  defmodule YouTubePlaylistItemsDiffer do
-    def diff(youtube_playlist_items, playlist_items) do
-      {youtube_playlist_items_ids, youtube_playlist_items_map} =
-        build_cache(youtube_playlist_items, :playlist_item_id)
-
-      {playlist_items_ids, playlist_items_map} = build_cache(playlist_items, :id)
-
-      new_items =
-        playlist_items_ids
-        |> MapSet.difference(youtube_playlist_items_ids)
-        |> Enum.map(fn id ->
-          {:new, playlist_items_map[id]}
-        end)
-
-      existing_items =
-        playlist_items_ids
-        |> MapSet.intersection(youtube_playlist_items_ids)
-        |> Enum.map(fn id ->
-          playlist_item = playlist_items_map[id]
-          {:existing, youtube_playlist_items_map[id], playlist_item}
-        end)
-
-      new_items ++ existing_items
-    end
-
-    defp build_cache(collection, key) do
-      ids = collection |> Enum.map(&Map.get(&1, key)) |> MapSet.new()
-
-      map =
-        Enum.reduce(collection, %{}, fn item, acc ->
-          key = Map.get(item, key)
-
-          Map.put(acc, key, item)
-        end)
-
-      {ids, map}
-    end
-  end
 
   def run(youtube_playlist) do
     conn = YouTube.Connection.new()
@@ -60,10 +23,34 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
         if youtube_playlist.etag != playlist.etag do
           Log.info("Etag mismatch", old_etag: youtube_playlist.etag, new_tag: playlist.etag)
 
-          with {:ok, youtube_playlist} <- update_playlist_items(conn, youtube_playlist),
-               {:ok, youtube_playlist} <- update_playlist(youtube_playlist, playlist),
-               :ok <- fetch_video_metadata(youtube_playlist),
-               do: youtube_playlist
+          youtube_playlist = Repo.preload(youtube_playlist, :items)
+          playlist_items = YouTube.Playlist.items(conn, playlist.id)
+          videos = YouTube.Video.get(conn, Enum.map(playlist_items, &Map.get(&1, :video_id)))
+
+          Multi.new()
+          |> Multi.run(:insert_videos, fn _acc -> {:ok, insert_videos(videos)} end)
+          |> Multi.run(:insert_playlist_items, fn %{insert_videos: videos} ->
+            playlist_items = insert_playlist_items(youtube_playlist, playlist_items, videos)
+            {:ok, playlist_items}
+          end)
+          |> Multi.run(
+            :delete_orphaned_playlist_items,
+            fn %{insert_playlist_items: youtube_playlist_items} ->
+              {:ok, delete_orphaned_playlist_items(youtube_playlist, youtube_playlist_items)}
+            end
+          )
+          |> Multi.update(
+            :update_playlist,
+            YouTubePlaylist.api_changeset(youtube_playlist, playlist)
+          )
+          |> Multi.run(:fetch_video_metadata, fn %{update_playlist: youtube_playlist} ->
+            fetch_video_metadata(youtube_playlist)
+
+            {:ok, nil}
+          end)
+          |> Repo.transaction()
+
+          youtube_playlist
         else
           Log.info("Etag is the same, won't parse further")
 
@@ -72,83 +59,99 @@ defmodule VidFeeder.SourceImporter.YouTubePlaylistImporter do
     end
   end
 
-  def update_playlist(youtube_playlist, playlist) do
-    youtube_playlist
-    |> YouTubePlaylist.api_changeset(playlist)
-    |> Repo.update()
+  def insert_videos(videos) do
+    Enum.map(videos, fn video ->
+      IO.inspect(video, label: :video)
+
+      result =
+        VidFeeder.YouTubeVideo.build(video.id)
+        |> VidFeeder.YouTubeVideo.api_changeset(video)
+        |> Ecto.Changeset.put_change(:id, Ecto.UUID.generate())
+        |> Repo.insert(
+          # We need to upgrade ecto to get better on_conflict options.
+          # The ancient version we're using requires us to specify every single
+          # key/value pair we want explicitly. I'm too lazy for that, and we
+          # want to upgrade elixir/ecto anyways.
+          #
+          # Until then, we won't be truly "updating" these records.
+          on_conflict: [set: [title: video.title]],
+          conflict_target: :video_id
+        )
+        |> IO.inspect(label: :here)
+
+      case result do
+        {:ok, video} ->
+          Log.debug("inserted video! #{video.id}")
+          video
+
+        {:error, error} ->
+          Log.debug("failed to insert video: #{inspect(error)}")
+          nil
+      end
+    end)
+    |> Enum.filter(fn video -> !is_nil(video) end)
   end
 
-  def update_playlist_items(conn, youtube_playlist) do
-    playlist_items = YouTube.Playlist.items(conn, youtube_playlist.playlist_id)
+  def insert_playlist_items(youtube_playlist, playlist_items, videos) do
+    Log.debug("INSERTING PLAYLIST ITEMS")
 
-    youtube_videos_by_video_id =
-      conn
-      |> create_or_update_videos_from_playlist_items(playlist_items)
-      |> Enum.reduce(%{}, fn video, acc -> Map.put(acc, video.video_id, video) end)
+    video_id_lut =
+      Enum.reduce(videos, %{}, fn video, acc -> Map.put(acc, video.video_id, video.id) end)
 
-    youtube_playlist = Repo.preload(youtube_playlist, items: :video)
+    playlist_items =
+      Enum.map(playlist_items, fn playlist_item ->
+        video_id = Map.get(video_id_lut, playlist_item.video_id)
 
-    youtube_playlist_items =
-      youtube_playlist.items
-      |> YouTubePlaylistItemsDiffer.diff(playlist_items)
-      |> Enum.map(fn
-        {:new, playlist_item} ->
-          youtube_playlist
-          |> VidFeeder.YouTubePlaylistItem.build(playlist_item.id)
+        if is_nil(video_id) do
+          IO.inspect(playlist_item)
+          raise "Received a playlist item with an unkown video id: #{playlist_item.video_id}"
+        end
+
+        Repo.get_by(VidFeeder.YouTubeVideo, video_id: playlist_item.video_id)
+        |> IO.inspect(label: "da video")
+
+        IO.puts("but the uuid for the video is #{video_id}")
+
+        result =
+          VidFeeder.YouTubePlaylistItem.build(youtube_playlist, playlist_item.id)
           |> VidFeeder.YouTubePlaylistItem.api_changeset(playlist_item)
-          |> Ecto.Changeset.put_assoc(:video, youtube_videos_by_video_id[playlist_item.video_id])
+          |> Ecto.Changeset.put_change(:video_id, video_id)
+          |> IO.inspect(label: :changeset)
+          |> Repo.insert(
+            on_conflict: [set: [position: playlist_item.position, video_id: video_id]],
+            conflict_target: :playlist_item_id
+          )
 
-        {:existing, youtube_playlist_item, playlist_item} ->
-          youtube_playlist_item
-          |> VidFeeder.YouTubePlaylistItem.api_changeset(playlist_item)
-          |> Ecto.Changeset.put_assoc(:video, youtube_videos_by_video_id[playlist_item.video_id])
+        case result do
+          {:ok, playlist_item} ->
+            Log.debug("Created playlist item: #{playlist_item.id}")
+            playlist_item
+
+          {:error, error} ->
+            Log.debug("Failed to insert playlist item: #{playlist_item.id} #{inspect(error)}")
+
+            nil
+        end
       end)
+  end
 
-    youtube_playlist =
-      youtube_playlist
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:items, youtube_playlist_items)
-      |> Repo.update!()
+  def delete_orphaned_playlist_items(youtube_playlist, youtube_playlist_items) do
+    playlist_item_ids = Enum.map(youtube_playlist_items, &Map.get(&1, :playlist_item_id))
 
-    {:ok, youtube_playlist}
+    from(i in VidFeeder.YouTubePlaylistItem,
+      where:
+        i.playlist_id == ^youtube_playlist.id and
+          i.playlist_item_id not in ^playlist_item_ids
+    )
+    |> Repo.delete_all()
   end
 
   defp fetch_video_metadata(youtube_playlist) do
     youtube_playlist.items
+    |> Repo.preload(:video)
     |> Enum.map(fn playlist_item -> playlist_item.video end)
     |> Enum.filter(fn youtube_video -> youtube_video.mime_type == nil end)
     |> Enum.filter(&YouTubeVideo.available_in_united_states?/1)
     |> YouTubeVideoMetadataManager.process_videos()
-  end
-
-  defp create_or_update_videos_from_playlist_items(conn, playlist_items) do
-    video_ids = playlist_items |> Enum.map(&Map.get(&1, :video_id))
-    videos = YouTube.Video.get(conn, video_ids)
-
-    {:ok, existing_videos_by_video_id} =
-      Repo.transaction(fn ->
-        from(v in YouTubeVideo,
-          where: v.video_id in ^video_ids
-        )
-        |> Repo.stream()
-        |> Enum.reduce(%{}, fn video, acc ->
-          Map.put(acc, video.video_id, video)
-        end)
-      end)
-
-    Enum.map(videos, fn video ->
-      case Map.get(existing_videos_by_video_id, video.id) do
-        nil ->
-          video.id
-          |> YouTubeVideo.build()
-          |> YouTubeVideo.api_changeset(video)
-          |> Repo.insert!()
-
-        youtube_video ->
-          youtube_video
-          |> YouTubeVideo.api_changeset(video)
-          |> Repo.update!()
-      end
-    end)
   end
 end
