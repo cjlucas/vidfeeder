@@ -9,7 +9,7 @@ RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources
 RUN wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && \
     dpkg -i erlang-solutions_2.0_all.deb && \
     apt-get update && \
-    apt-get install -y esl-erlang=1:24.0.5-1 elixir=1.12.2-1 yarn
+    apt-get install -y esl-erlang=1:23.3.1-1 elixir=1.12.2-1 yarn
 
 RUN wget https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz && \
     gzip -d binary-for-linux-64-bit.gz && \
