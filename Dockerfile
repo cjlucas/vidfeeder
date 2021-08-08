@@ -6,10 +6,10 @@ RUN apt-get update && \
 RUN wget https://dl.yarnpkg.com/debian/pubkey.gpg -O - | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
-RUN wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && \
-    dpkg -i erlang-solutions_1.0_all.deb && \
+RUN wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && \
+    dpkg -i erlang-solutions_2.0_all.deb && \
     apt-get update && \
-    apt-get install -y esl-erlang=1:21.1 elixir=1.7.3-1 yarn
+    apt-get install -y esl-erlang=1:23.3.1-1 elixir=1.12.2-1 yarn
 
 RUN wget https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz && \
     gzip -d binary-for-linux-64-bit.gz && \

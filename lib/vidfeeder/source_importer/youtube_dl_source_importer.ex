@@ -43,9 +43,7 @@ defmodule VidFeeder.SourceImporter.YoutubeDlSourceImporter do
     File.close(temp_fd)
 
     proxy_url =
-      "socks5://#{System.get_env("PROXY_USER")}:#{System.get_env("PROXY_PASS")}@#{
-        Enum.random(@proxies)
-      }"
+      "socks5://#{System.get_env("PROXY_USER")}:#{System.get_env("PROXY_PASS")}@#{Enum.random(@proxies)}"
 
     youtube_dl_cmd = YoutubeDlUpdater.path()
 
