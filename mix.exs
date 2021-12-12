@@ -34,7 +34,6 @@ defmodule VidFeeder.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.3.3"},
-      {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_ecto, "~> 3.2"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.10"},
@@ -49,7 +48,6 @@ defmodule VidFeeder.Mixfile do
       {:bodyguard, "~> 2.2"},
       {:cors_plug, "~> 1.5"},
       {:distillery, "~> 2.0"},
-      {:cipher, "~> 1.4"},
       {:sendgrid, "~> 2.0.0-rc"},
       {:gen_stage, "~> 0.14.0"},
       {:remote_ip, "~> 0.1.4"},

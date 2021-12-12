@@ -25,8 +25,7 @@ config :vidfeeder,
 config :vidfeeder, VidFeederWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "BDAW+rSWbqwOeFfJB1y/+dJQho/KVoVMkdNgnG2htap2InoOAAGavmS+1qyD5+dS",
-  render_errors: [view: VidFeederWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: VidFeeder.PubSub, adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: VidFeederWeb.ErrorView, accepts: ~w(html json)]
 
 # Configures Elixir's Logger
 config :logger, :console,
