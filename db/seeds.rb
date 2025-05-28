@@ -7,3 +7,8 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+user = User.create!(email: "chris@cjlucas.com")
+youtube_playlist = YoutubePlaylist.create!(playlist_id: "PL2_ZhCWbTuaIqluGryO9EnJ4QB1NJ37KS")
+
+Subscription.create!(user: user, source: youtube_playlist)
