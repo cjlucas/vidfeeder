@@ -1,8 +1,0 @@
-- hosts: "{{ ansible_hosts }}"
-  tasks:
-    - name: Start VidFeeder
-      systemd:
-        name: vidfeeder
-        state: started
-        enabled: yes
-      become: yes
